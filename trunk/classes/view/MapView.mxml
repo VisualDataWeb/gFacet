@@ -1,0 +1,356 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 
+Copyright (C) 2009 Philipp Heim (email to: heim.philipp@googlemail.com)
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.	
+-->
+
+<ext:MyPanel 
+	xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:ext="classes.extenders.panel.*"
+	creationComplete="setup()"
+	filters="{calcFilters(data.hasChanged)}"
+	title="{data.cLabel}s ({data.numberOfValids}/{data.maxNumberOfValids})" width="200" height="205" toolTip="{data.chain.property.type}={data.chain.property.value}" layout="absolute" showControls="true" enableResize="true" listItem="{data as ListItem}"  verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	
+		
+		
+	<mx:VBox verticalGap="0" height="100%" width="100%">
+		<mx:UIComponent id="mapContainer" initialize="startMap(event);" resize="resizeMap(event);"  width="100%" height="100%"/> <!-- initialize="startMap(event);" resize="resizeMap(event);" -->
+		
+		<mx:HBox paddingBottom="2" paddingTop="3">
+			<mx:ComboBox id="facetsdropdown" prompt="- Add Facet -" styleName="myButtonStyle3" itemRenderer="mx.controls.Label" change="data.activateFacet(facetsdropdown.selectedItem); facetsdropdown.selectedItem = null;" width="140" dataProvider="{data.properties}" />
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:Script>
+	<![CDATA[
+		import com.flashdb.Element;
+		import com.flashdb.Property;
+		import com.google.maps.controls.ZoomControl;
+		import flash.events.Event;
+		import com.google.maps.MapEvent;
+		import com.google.maps.Map;
+		import com.google.maps.MapType;
+		import com.google.maps.MapZoomEvent;
+		import com.google.maps.MapMouseEvent;
+		import com.google.maps.LatLng;
+		import com.google.maps.LatLngBounds;
+		import com.google.maps.overlays.Marker;
+		import com.google.maps.overlays.MarkerOptions;
+		import com.google.maps.LatLngBounds;
+		import flash.events.Event;
+		import flash.events.TimerEvent;
+		import flash.utils.Timer;
+		import mx.collections.ArrayCollection;
+		import mx.collections.ListCollectionView;
+		import mx.core.Application;
+		import mx.core.UIComponent;
+		import org.flashdevelop.utils.FlashConnect;
+		import mx.events.CollectionEvent
+		import com.google.maps.services.ClientGeocoder;
+		import com.google.maps.services.GeocodingEvent;
+		import com.google.maps.InfoWindowOptions;
+		import mx.controls.Alert;
+		import de.polygonal.ds.HashMap;
+		import org.osflash.thunderbolt.Logger;
+		import mx.events.ResizeEvent;
+		
+		private var map:Map;
+		private var mapIsReady:Boolean = false;
+		private var bounds:LatLngBounds;
+		private var markers:HashMap = new HashMap();
+		private var maxZoomLevel:int = 7;
+		private var geocoding:Array = new Array();
+		
+		
+		
+		public function startMap(event:Event):void {
+			map = new Map();
+			map.key = "ABQIAAAA-wYT1bnRWueUH2xJzOQ2MxSCMhR8T8-hCnO3Dwgv5VpQzANmyRRWWE4Twp_bKhJXg9x8BRHzA0I4ig";
+			//map.key = "ABQIAAAA-wYT1bnRWueUH2xJzOQ2MxTgsJsgsCtHk0X4GMYBeqoShGESpRRSlp-L0sXgKZiUFEulbJSHrvJhvw";
+			//map.key = "ABQIAAAA-wYT1bnRWueUH2xJzOQ2MxTgsJsgsCtHk0X4GMYBeqoShGESpRRSlp-L0sXgKZiUFEulbJSHrvJhvw";
+			//map.key = "ABQIAAAA-wYT1bnRWueUH2xJzOQ2MxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxS0zysteAwcZlbQkrh-graVtayDTw";
+			//map.key = "ABQIAAAA-wYT1bnRWueUH2xJzOQ2MxRUixh4W48oe7FDhRqatMvA1k6I1xQhRNFkEc8PAXrQVvKcgzNfT-CqlQ"; //GraphBasedFacets
+			map.addEventListener(MapEvent.MAP_READY, onMapReady);
+			mapContainer.addChild(map);
+		}
+		
+		//obsolet
+		/*public function checkVisibleElements(event:Event):void {
+			FlashConnect.trace("checkVisibleElements");
+			var currentBounds:LatLngBounds = map.getLatLngBounds();
+			if (currentBounds.containsBounds(bounds)) {
+				FlashConnect.trace("all visible");
+			}else {
+				FlashConnect.trace("not all visible");
+				for each(var e:Element in data.visibleElements) {
+					if (locations.containsKey(e.id)) {
+						
+					
+					
+						var ll:LatLng = locations.find(e.id);//new LatLng(latProp.value as Number, lngProp.value as Number);
+						if (currentBounds.containsLatLng(ll)) {
+							data.selectedElementsChanged(e);
+							
+						}
+					}
+				}
+				app().triggeredColor = data.highlightColor;	//this is now the source of all updates!
+				app().getFacetedChains();	//complete update
+			}
+			
+			//data.facet.selectedElementIds.push
+		}*/
+		
+		public function resizeMap(event:Event):void {
+			map.setSize(new Point(mapContainer.width, mapContainer.height));
+		}
+		  
+		private function onMapReady(event:MapEvent):void {
+			mapIsReady = true;
+			map.enableScrollWheelZoom();
+			map.enableContinuousZoom();
+			//map.addControl(new ZoomControl());
+			map.setCenter(new LatLng(51.4167, 6.76667), 0, MapType.NORMAL_MAP_TYPE);
+			Logger.debug("map is ready");
+			//FlashConnect.trace("onMapReady");
+			updateBounds(null);
+			/*
+			map.addEventListener(MapMouseEvent.DRAG_END, checkVisibleElements);
+			map.addEventListener(MapZoomEvent.ZOOM_END, checkVisibleElements);
+			map.addEventListener(MapEvent.SIZE_CHANGED, checkVisibleElements);
+			
+			var mapView:MapView = this;
+			map.addEventListener(MapZoomEvent.ZOOM_END, function(event:Event):void {
+				FlashConnect.trace("zoomLevel: " + mapView.map.getZoom());
+				
+			});*/
+		}
+		
+		private function updateBounds(event:Event):void {
+			Logger.debug("update bounds", mapIsReady);
+
+			if (mapIsReady) {
+				this.map.clearOverlays();
+				this.bounds = new LatLngBounds();
+				var mapView:MapView = this;
+				var iter:int = 0;
+				for each(var e:Element in data.visibleElements) {
+					Logger.debug("element in mapItem: " + data.visibleElements.length);
+					if (this.markers.containsKey(e.id)) {
+						var m:Marker = this.markers.find(e.id) as Marker;
+						map.addOverlay(m);
+						
+						Logger.debug("marker exists ", e.id);
+						
+						m.setOptions(getMarkerOptions(e));
+					}else {
+						Logger.debug("create new marker ", e.getProperty("rdfs:label"));
+						
+						var latProp:Property = e.getProperty("lat");
+						var lngProp:Property = e.getProperty("long");
+						
+						if ((latProp != null) && (lngProp != null)) {
+							var ll:LatLng = new LatLng(latProp.value as Number, lngProp.value as Number);
+							this.createMarker(e, ll);
+							geocoding[geocoding.indexOf(e.id)] = "";
+						}else {
+							Logger.debug("Geocode: " + e.id, geocoding.indexOf(e.id));
+							if (geocoding.indexOf(e.id) < 0)
+							{
+								geocoding.push(e.id);
+								this.doGeocode(e);
+							}
+							
+						}
+					}
+				}
+				//this.updateCenterAndZoom();
+				//map.setCenter(this.bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+				//centerAndZoomOnBounds(this.bounds);
+				//map.panTo(this.bounds.getCenter());//setCenter(this.bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+			}
+			
+		}
+		
+		private function updateCenterAndZoom():void {
+			var newCenter:LatLng = bounds.getCenter();
+			var oldZoom:Number = map.getZoom();
+			var newZoom:Number = map.getBoundsZoomLevel(bounds);
+			
+			if (newZoom <= oldZoom) {	//if the new information does not fit on the current space (zoomLevel)
+				//map.panTo(newCenter);
+				map.setCenter(newCenter, newZoom, MapType.NORMAL_MAP_TYPE);
+				
+			}else {
+				if (newZoom > maxZoomLevel) {
+					newZoom = maxZoomLevel;
+				}
+				//map.setCenter(newCenter, newZoom, MapType.NORMAL_MAP_TYPE);
+				map.panTo(newCenter);
+				/*for (var i:Number = oldZoom; i < newZoom; i++) {
+					map.zoomIn(newCenter, false, true);
+					//map.setCenter(this.bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+				}*/
+				//map.panTo(this.bounds.getCenter());
+				//map.setZoom(newZoom);
+				//map.zoomIn(newCenter, true, true);
+			}
+			
+		}
+		
+		/*private function centerAndZoomOnBounds(bounds:LatLngBounds):void{
+			var center:LatLng = bounds.getCenter();
+			var newZoom:Number = map.getBoundsZoomLevel(bounds);
+			//if (newZoom > maxZoomLevel) newZoom = maxZoomLevel;
+			var oldZoom:Number = map.getZoom();
+			//if (oldZoom != newZoom) {
+				
+				if (oldZoom < newZoom) {
+					for (var i:int = oldZoom; i<newZoom; i++) {
+						map.zoomIn(center, true, true);
+					}
+				}else {
+					map.setCenter(this.bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+				}
+				
+			
+		}*/
+		
+		private function createMarker(_e:Element, _loc:LatLng):void {
+			if (!this.markers.containsKey(_e.id)){
+				this.bounds.extend(_loc);
+				var opts:MarkerOptions = this.getMarkerOptions(_e);
+				var newMarker:Marker = new Marker(_loc, opts);
+				var mapView:MapView = this;
+				newMarker.addEventListener(MapMouseEvent.CLICK, function (event:MapMouseEvent):void {
+					//var eId:int = mapView.locations.findKey(newMarker2.getLatLng());
+					mapView.data.selectedElementsChanged(mapView.data.getElement(_e.id));
+				});
+				map.addOverlay(newMarker);
+				this.markers.insert(_e.id, newMarker);
+			}
+		}
+		
+		private function getMarkerOptions(_e:Element):MarkerOptions {
+			
+			var color:uint =  uint("0xffffff");
+			//var status:String = _e.status;
+			if (_e.isSelected) {
+				color = data.highlightColor;
+			}else if (_e.isValid) {
+				if (_e.isNew) {
+					color = uint("0xE0FFFF");
+				}else {
+					color = uint("0xFFFFFF");
+				}
+			}else {
+				if (_e.isNew) {
+					color = uint("0xFFEBCD");
+				}else {
+					color = uint("0xDCDCDC");
+				}
+			}
+			
+			var opts:MarkerOptions = new MarkerOptions( {
+				strokeStyle: {
+					color: 0x333333
+				},
+				fillStyle: {
+					color: color,
+					alpha: 1.0
+				},
+				label: _e.getProperty("Label").label.substr(0, 1),
+				labelFormat: {
+					bold: true
+				},
+				tooltip: _e.getProperty("Label").label,
+				radius: 9,
+				hasShadow: true,
+				draggable: false,
+				gravity: 0.5
+			});
+			return opts;
+		}
+		
+		private function doGeocode(_e:Element):void {
+			var geocoder:ClientGeocoder = new ClientGeocoder();
+			var mapView:MapView = this;
+			geocoder.addEventListener(GeocodingEvent.GEOCODING_SUCCESS, function(event:GeocodingEvent):void {
+					var placemarks:Array = event.response.placemarks;
+					if (placemarks.length > 0) {
+						mapView.createMarker(_e, placemarks[0].point);
+						mapView.updateCenterAndZoom();
+					}
+				}
+			);
+			geocoder.addEventListener(
+				GeocodingEvent.GEOCODING_FAILURE,
+				function(event:GeocodingEvent):void {
+					Logger.error("Geocoding failed: ", _e.id);
+					Logger.error("Geocoding Event: ", event.status);
+					//Alert.show("Geocoding failed: "+_e.title);
+					//trace(event);
+					//trace(event.status);
+					//FlashConnect.trace(event.status);
+				}
+			);
+			geocoder.geocode(_e.getProperty("Label").label);
+		}
+		
+		public function setup():void {
+			data.visibleElements.addEventListener(CollectionEvent.COLLECTION_CHANGE, updateBounds);
+			//data.startMap(null);
+			//mapContainer.addChild(data.map);
+			//mapContainer.addEventListener(ResizeEvent.RESIZE, resizeMap); 
+			FlashConnect.trace("setup");
+			
+			var timer:Timer = new Timer(4000, 1);
+			timer.addEventListener(TimerEvent.TIMER_COMPLETE, this.timerCompleteHandler);
+			timer.start();
+			
+			//trace("ListView has been build");
+			//this.addEventListener(MouseEvent.CLICK, canvasClickHandler);
+		}
+		
+		public function isVisible(_data:Object):Boolean {
+			if (data.cLabel == "Requirement") return true;
+			else	return false;
+		}
+
+		
+		public function timerCompleteHandler(event:Event):void {
+			if (!this.isPinned) {	//if the window is not allready pinned
+				this.pinClickHandler(null);
+			}
+		}
+		
+		private function app(): gFacet {
+			return Application.application as gFacet;
+		}
+		
+		private function calcFilters(_hasChanged:Boolean): Array {
+			trace("---calcFilters----");
+			var a:Array = new Array();
+			var radius:int = 5;
+			var alpha:Number = 1.0;
+			trace("restricting colors----- "+data.id);
+			for each(var color:uint in data.restrictingColors) {
+				trace("color in restrictingColors: " + color);
+				//if (prop.isHighlighted) {
+					//return [new GlowFilter(0xFFFF00, 0.5, 8, 8, 2, 1)];
+					a.push(new GlowFilter(color, alpha, radius, radius, 15, 2));
+					//radius = radius - 2;
+					//alpha = alpha - 0.2;
+				//}
+			}
+			return a;
+		}
+			
+		]]>
+	</mx:Script>				
+</ext:MyPanel>
