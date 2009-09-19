@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 
+Copyright (C) 2009 Philipp Heim, Sebastian Hellmann, Jens Lehmann, Steffen Lohmann and Timo Stegemann
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.	
+-->
+
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"  width="560" height="100%" borderAlpha="0.7" creationComplete="{init();}" >
+	<mx:Script>
+		<![CDATA[
+			
+			import connection.config.IConfig;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var config:IConfig;
+			
+			private function init():void {
+				callLater(PopUpManager.centerPopUp, [this]);
+				
+			}
+			
+			public function apply():void {
+				
+			}
+			
+			public function ok():void {
+				
+				apply();
+				cancel();
+			}
+			
+			public function cancel():void {
+				PopUpManager.removePopUp(this);
+			}
+		
+		]]>
+	</mx:Script>
+	
+	<mx:Form width="100%">
+		
+		<mx:FormItem width="100%" label="Name:">
+			<mx:TextInput id="inName" width="100%" text="{config.name}" />
+		</mx:FormItem>
+		<mx:FormItem width="100%" label="Description:">
+			<mx:TextArea id="inDescription" width="100%" text="{config.description}" />
+		</mx:FormItem>
+		<mx:FormItem width="100%" label="Endpoint URI:">
+			<mx:TextInput id="inEndpointURI" width="100%" text="{config.endpointURI}" />
+		</mx:FormItem>
+		<mx:FormItem width="100%" label="Default Graph URI:">
+			<mx:TextInput id="inDefaultGraphURI" width="100%" text="{config.defaultGraphURI}" />
+		</mx:FormItem>
+		<mx:FormItem width="100%" label="Is Virtuoso Server:">
+			<mx:CheckBox id="inIsVirtuoso" width="100%" selected="{config.isVirtuoso}" />
+		</mx:FormItem>
+		<mx:FormItem width="100%" label="Use Proxy:">
+			<mx:CheckBox id="inUseProxy" width="100%" selected="{config.useProxy}" />
+		</mx:FormItem>
+		<mx:FormItem width="100%" label="Autocomplete URIs:">
+			<mx:List id="inAutocompleteURIs" width="100%" dataProvider="{config.autocompleteURIs}" />
+		</mx:FormItem>
+		<mx:FormItem width="100%" label="Ignored Properties:">
+			<mx:List id="inIgnoredProperties" width="100%" dataProvider="{config.ignoredProperties}" />
+		</mx:FormItem>
+		
+	</mx:Form>
+	
+	<mx:HBox horizontalAlign="right" width="100%">
+		<mx:Button id="okButton" label="OK" click="{ok();}" enabled="false" />
+		<mx:Button id="cancelButton" label="Cancel" click="{cancel();}" />
+	</mx:HBox>
+	
+</mx:TitleWindow>

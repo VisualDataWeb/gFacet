@@ -14,11 +14,14 @@ import connection.MirroringConnection_SWORE;
 import connection.RemotingConnection;
 import connection.DirectConnection;
 import connection.MirroringConnection;
+import flash.events.MouseEvent;
 import graphElements.*;
 import mainMenu.MainMenuController;
 import graphElements.GraphController;
 import connection.SPARQLConnection;
 import mx.collections.ArrayCollection;
+import mx.managers.PopUpManager;
+import popup.ExpertSettings;
 
 //FLAG
 private static var connectionType:String = "mirroring"; // "mirroring_knoodl"; // "mirroring"; // "mirroring_swore"; // "mirroring";	//indirect (over PHP) direct or mirroring connection to an SPARQL endpoint
@@ -125,4 +128,8 @@ private function changeHelp1(): void {
 
 public function onTimerComplete(evt:TimerEvent):void{
 	help.visible = false;
+}
+
+private function settingsClickHandler(event:MouseEvent):void {
+	var pop:ExpertSettings = PopUpManager.createPopUp(this, ExpertSettings) as ExpertSettings;
 }

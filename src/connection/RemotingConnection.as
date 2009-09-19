@@ -33,7 +33,7 @@ package connection {
 		private var command:String;
 		private var timeoutDelay:Timer;
 
-		private var host:String;
+		//private var host:String;
 		private var service:String;
 		
 		/**
