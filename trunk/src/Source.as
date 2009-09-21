@@ -9,18 +9,26 @@
  */ 
 
 import com.adobe.flex.extras.controls.springgraph.Graph;
+import connection.config.Config;
+import connection.config.IConfig;
 import connection.MirroringConnection_Knoodl;
 import connection.MirroringConnection_SWORE;
+import connection.model.ConnectionModel;
 import connection.RemotingConnection;
 import connection.DirectConnection;
 import connection.MirroringConnection;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import graphElements.*;
 import mainMenu.MainMenuController;
 import graphElements.GraphController;
 import connection.SPARQLConnection;
 import mx.collections.ArrayCollection;
+import mx.controls.Alert;
 import mx.managers.PopUpManager;
+import mx.rpc.events.FaultEvent;
+import mx.rpc.events.ResultEvent;
+import mx.rpc.http.HTTPService;
 import popup.ExpertSettings;
 
 //FLAG
@@ -132,4 +140,88 @@ public function onTimerComplete(evt:TimerEvent):void{
 
 private function settingsClickHandler(event:MouseEvent):void {
 	var pop:ExpertSettings = PopUpManager.createPopUp(this, ExpertSettings) as ExpertSettings;
+}
+
+private function preInitHandler(event:Event):void {
+	// load config
+	var root:String = Application.application.url;
+	var configLoader:HTTPService = new HTTPService(root);
+	
+	configLoader.addEventListener(ResultEvent.RESULT, xmlCompleteHandler);
+	configLoader.addEventListener(FaultEvent.FAULT, xmlCompleteHandler);
+	configLoader.url = "config/Config.xml";
+	configLoader.send();
+   
+}
+
+private function xmlCompleteHandler(event:Event):void {
+	if (event is ResultEvent) {
+		
+		var result:Object = (event as ResultEvent).result.data;
+		
+		// set proxy
+		ConnectionModel.getInstance().proxy = result.proxy.url;
+		ConnectionModel.getInstance().defaultProxy = result.proxy.url;
+		
+		ConnectionModel.getInstance().sparqlConfigs.removeAll();
+		
+		for each (var obj:Object in result.endpoints.endpoint) {
+			ConnectionModel.getInstance().sparqlConfigs.addItem(getConfig(obj));
+		}
+		
+		if (ConnectionModel.getInstance().sparqlConfigs.length > 0) {
+			ConnectionModel.getInstance().sparqlConfig = ConnectionModel.getInstance().sparqlConfigs.getItemAt(0) as IConfig;
+		}else {
+			ConnectionModel.getInstance().sparqlConfigs.addItem(new Config());
+		}
+		
+	}else {
+		Alert.show((event as FaultEvent).fault.toString(), "Config file not found");
+	}
+	
+	callLater(setInitialized);
+}
+
+private function setInitialized():void {
+	super.initialized = true
+}
+
+public function getConfig(conf:Object):Config {
+	
+	var config:Config = new Config();
+	
+	if (conf == null) {
+		return config;
+	}
+	
+	config.name = conf.name;
+	config.description = conf.description;
+	config.endpointURI = conf.endpointURI;
+	config.defaultGraphURI = conf.defaultGraphURI;
+	config.isVirtuoso = conf.isVirtuoso;
+	config.useProxy = conf.useProxy;
+	if (conf.autocompleteURIs != null) {
+		for each (var autocomplete:Object in conf.autocompleteURIs) {
+			if (autocomplete is ArrayCollection) {
+				config.autocompleteURIs = autocomplete as ArrayCollection;
+			}else {
+				config.autocompleteURIs = new ArrayCollection([autocomplete]);
+			}
+		}
+	}
+	if (conf.ignoredProperties != null) {
+		for each (var ignoredProperty:Object in conf.ignoredProperties) {
+			if (ignoredProperty is ArrayCollection) {
+				config.ignoredProperties = ignoredProperty as ArrayCollection;
+			}else {
+				config.ignoredProperties = new ArrayCollection([ignoredProperty]);
+			}
+		}
+	}
+	
+	return config;
+}
+
+override public function set initialized(value:Boolean):void{
+	// don't do anything, so we wait until the xml loads
 }

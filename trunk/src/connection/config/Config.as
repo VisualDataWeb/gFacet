@@ -18,6 +18,10 @@ package connection.config
 	
 	import mx.collections.ArrayCollection;
 	
+	/**
+	 * ...
+	 * @author Timo Stegemann
+	 */
 	public class Config extends EventDispatcher implements IConfig
 	{
 		
@@ -45,7 +49,7 @@ package connection.config
 					autocompleteURIs:ArrayCollection = null,
 					lookUp:ILookUp = null) {
 			
-			this.name = name;
+			this.name = (name == null || name == "") ? "New Config" : name;
 			this.description = description;
 			this.endpointURI = endpointURI;
 			this.defaultGraphURI = defaultGraphURI;
@@ -149,9 +153,36 @@ package connection.config
 			dispatchEvent(new Event("useProxyChange"));
 		}
 		
+		public function equals(config:IConfig):Boolean {
+			return (name == config.name) && (endpointURI == config.endpointURI) &&
+						(defaultGraphURI == config.defaultGraphURI) && (isVirtuoso == config.isVirtuoso) &&
+						(useProxy == config.useProxy) && arrayCollectionEquals(autocompleteURIs, config.autocompleteURIs) &&
+						arrayCollectionEquals(ignoredProperties, config.ignoredProperties);
+		}
+		
+		private function arrayCollectionEquals(ac1:ArrayCollection, ac2:ArrayCollection):Boolean {
+			if (ac1.length != ac2.length) {
+				return false;
+			}
+			
+			var a1:Array = ac1.toArray();
+			var a2:Array = ac2.toArray();
+			
+			a1.sort();
+			a2.sort();
+			
+			for (var i:int = 0; i < a1.length; i++) {
+				if ((a1[i] as String) != (a2[i] as String)) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
+		
 		override public function toString():String {
 			return "Name: " + name + "\n" +
-					"Abbrevation: " + description  + "\n" +
+					"Description: " + description  + "\n" +
 					"EndpointURI: " + endpointURI  + "\n" +
 					"DefaultGraphURI: " + defaultGraphURI  + "\n" +
 					"IsVirtuoso: " + isVirtuoso + "\n" +
@@ -160,5 +191,4 @@ package connection.config
 					"IgnoredProperties: " + ((ignoredProperties == null) ? "null" : ignoredProperties.toArray() + " #" + ignoredProperties.length);
 		}
 	}
-	
 }
