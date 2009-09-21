@@ -8,16 +8,22 @@
 	<mx:Script>
 		<![CDATA[
 			import connection.config.Config;
+			import connection.model.ConnectionModel;
+			import flash.display.DisplayObject;
 			import flash.events.Event;
 			import flash.events.MouseEvent;
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.controls.List;
 			import mx.controls.listClasses.BaseListData;
+			import mx.core.Application;
 			import mx.core.IFlexModuleFactory;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 			import mx.utils.ObjectUtil;
+			import popup.ExpertSettings;
 			
 			import popup.EditEndpointConfig;
 			
@@ -39,10 +45,12 @@
 			
 			private function mouseOverHandler(event:MouseEvent):void {
 				epEdit.visible = true;
+				epRemove.visible = true;
 			}
 			
 			private function mouseOutHandler(event:MouseEvent):void {
 				epEdit.visible = false;
+				epRemove.visible = false;
 			}
 			
 			
@@ -126,11 +134,27 @@
 			
 			private function edit(event:Event):void {
 				if (_data && _data is Config) {
-					var edit:EditEndpointConfig = PopUpManager.createPopUp(this, EditEndpointConfig, true) as EditEndpointConfig;
+					var edit:EditEndpointConfig = PopUpManager.createPopUp(Application.application as DisplayObject, EditEndpointConfig, true) as EditEndpointConfig;
 					edit.config = _data as Config;
 					
 				}
 			}
+			
+			private function remove(event:Event):void {
+				if (_data && _data is Config) {
+					Alert.show("Do you really want to delete this entry?", "Delete entry", Alert.YES + Alert.NO, this, dispatchCloseEvent);
+				}
+			}
+			
+			private function dispatchCloseEvent(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					ConnectionModel.getInstance().sparqlConfigs.removeItemAt(ConnectionModel.getInstance().sparqlConfigs.getItemIndex(_data));
+					(parent.parent.parent.parent.parent as ExpertSettings).selectFirstSPARQL();
+				}
+			}
+			
+			
+			
 			
 		]]>
 	</mx:Script>
@@ -138,6 +162,7 @@
 	<mx:HBox id="hb" width="100%" paddingBottom="0" horizontalGap="0" verticalGap="0" paddingRight="5">
 		<mx:Label id="epNumber" text="#{getNumber()}" fontWeight="bold" fontSize="12" paddingBottom="0"  />
 		<mx:Label id="epName" width="100%" fontWeight="bold" fontSize="12" paddingBottom="0"  />
+		<mx:Button id="epRemove" label="Remove" visible="false" click="remove(event);" paddingRight="2" />
 		<mx:Button id="epEdit" label="Edit" visible="false" click="edit(event);" />
 	</mx:HBox>
 	

@@ -11,11 +11,13 @@ You should have received a copy of the GNU General Public License along with thi
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-		width="560" height="100%" borderAlpha="0.7" creationComplete="{init();}" title="Edit">
+		width="560" height="100%" borderAlpha="0.7" creationComplete="{init();}" title="Create">
 	<mx:Script>
 		<![CDATA[
 			
+			import connection.config.Config;
 			import connection.config.IConfig;
+			import connection.model.ConnectionModel;
 			import flash.display.DisplayObject;
 			import flash.events.Event;
 			import mx.collections.ArrayCollection;
@@ -40,14 +42,14 @@ You should have received a copy of the GNU General Public License along with thi
 				}
 				
 				for each (var o2:Object in _config.ignoredProperties) {
-					tempIgPropDP.addItem(o2);
+					tempIgPropDP.addItem(o1);
 				}
 				
 				dispatchEvent(new Event("configChange"));
 			}
 			
 			[Bindable]
-			private var tempACDP:ArrayCollection = new ArrayCollection();
+			private var tempACDP:ArrayCollection = new ArrayCollection(["http://www.w3.org/2000/01/rdf-schema#label"]);
 			
 			[Bindable]
 			private var tempIgPropDP:ArrayCollection = new ArrayCollection();
@@ -70,12 +72,15 @@ You should have received a copy of the GNU General Public License along with thi
 				config.name = inName.text;
 				config.useProxy = inUseProxy.selected;
 				
-				
 			}
 			
 			public function ok():void {
 				
 				apply();
+				
+				ConnectionModel.getInstance().sparqlConfigs.addItem(config);
+				ConnectionModel.getInstance().sparqlConfig = config;
+				
 				cancel();
 			}
 			

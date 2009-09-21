@@ -10,12 +10,8 @@
 
 package connection.model 
 {
-	import connection.config.CIAWorldFactBookConfig;
-	import connection.config.DBLPConfig;
-	import connection.config.DBpediaConfig;
+	import connection.config.Config;
 	import connection.config.IConfig;
-	import connection.config.LinkedMDBConfig;
-	import connection.config.LODConfig;
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -33,6 +29,7 @@ package connection.model
 		public function ConnectionModel(singleton:SingletonEnforcer) 
 		{
 			eventDispatcher = new EventDispatcher();
+			sparqlConfigs.addItem(sparqlConfig);
 		}
 		
 		public static function getInstance():ConnectionModel{
@@ -88,11 +85,7 @@ package connection.model
 			return null;
 		}
 		
-		private var _sparqlConfig:IConfig = new DBpediaConfig(); // Standard
-		//private var _sparqlConfig:IConfig = new LODConfig(); // funtioniert
-		//private var _sparqlConfig:IConfig = new LinkedMDBConfig(); // funktioniert noch nicht (Label)
-		//private var _sparqlConfig:IConfig = new CIAWorldFactBookConfig(); // funktioniert noch nicht (Server)
-		//private var _sparqlConfig:IConfig = new DBLPConfig(); // funktioniert noch nicht (Server)
+		private var _sparqlConfig:IConfig = new Config();
 		
 		[Bindable(event = "sparqlConfigChanged")]
 		public function get sparqlConfig():IConfig {

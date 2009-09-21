@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License along with thi
 				layout="absolute"  
 				fontFamily="Verdana" 
 				fontSize="9"
+				preinitialize="preInitHandler(event)"
 				creationComplete="setup()">
 	
 	<mx:Script source="Source.as"/>

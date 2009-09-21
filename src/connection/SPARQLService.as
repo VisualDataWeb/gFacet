@@ -23,7 +23,7 @@ package connection
 	{
 		private var _sources:ArrayCollection = null;
 		
-		private var _executenTime:Date;
+		private var _executionTime:Date;
 		
 		private var _parsingInformations:Object = null;
 		
@@ -50,15 +50,15 @@ package connection
 		
 		override public function send(parameters:Object = null):AsyncToken 
 		{
-			_executenTime = new Date();
+			_executionTime = new Date();
 			return super.send(parameters);
 		}
 		
-		public function get executenTime():Date {
-			if (_executenTime == null) {
-				_executenTime = new Date();
+		public function get executionTime():Date {
+			if (_executionTime == null) {
+				_executionTime = new Date();
 			}
-			return _executenTime;
+			return _executionTime;
 		}
 		
 		/**
@@ -78,7 +78,7 @@ package connection
 			if (processResult(event.message, token))
 			{
 				dispatchEvent(new Event(BINDING_RESULT));
-				var resultEvent:SPARQLResultEvent = SPARQLResultEvent.createEvent(_result, _sources, executenTime, _parsingInformations, token, event.message);
+				var resultEvent:SPARQLResultEvent = SPARQLResultEvent.createEvent(_result, _sources, executionTime, _parsingInformations, token, event.message);
 				resultEvent.headers = _responseHeaders;
 				dispatchRpcEvent(resultEvent);
 			}
