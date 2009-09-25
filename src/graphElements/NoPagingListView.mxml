@@ -16,10 +16,12 @@ You should have received a copy of the GNU General Public License along with thi
 	xmlns:ext="extenders.*"
 	xmlns:nimer="com.mikenimer.components.datagrid.*"
 	xmlns:comp="com.adobe.flex.extras.controls.*"
+	xmlns:components="com.hillelcoren.components.*"
+	
 	creationComplete="setup()"
 	filters="{calcFilters(data.hasChanged)}" 
 	styleName="{getStyleName(data.facet.isResultSet)}"
-	title="{data.cLabel} ({data.facet.offset + 1}-{data.facet.offset + data.facet.limit} of {data.numberOfValids})" width="280" height="205" toolTip="{data.elementClass.label}"
+	title="{data.cLabel}" width="280" height="205" toolTip="{data.elementClass.label}"
 	layout="absolute" showControls="true" enableResize="true" listItem="{data as ListItem}"  verticalScrollPolicy="off" horizontalScrollPolicy="off">
 	<!--
 	</ext:MyPanel>.hasChanged)}" 
@@ -39,19 +41,27 @@ You should have received a copy of the GNU General Public License along with thi
 		<nimer:CustomRowColorDataGrid id="dg" headerRelease="headerReleasedHandler(event)" borderStyle="none" variableRowHeight="true"  rowColorFunction="selectTypeColor"  dataProvider="{data.visibleElements}" width="100%" height="100%" headerStyleName="myButtonStyle2" styleName="myButtonStyle3big" mouseDown="event.stopPropagation()" change="{data.selectedElementsChanged(dg.selectedItem as Element); dg.selectedIndex = -1;}"> 
 		</nimer:CustomRowColorDataGrid>
 		<!-- resize='{pageNav.width = this.width-6; myHBox.percentWidth= 100; myVBox.percentWidth = 100; Logger.debug("pageNav.width", pageNav.width); Logger.debug("nav.length", pageNav.numChildren);}' -->
-		<mx:ToggleButtonBar id="pageNav" itemClick="navigatePage(event)" width="{this.width - 6}" dataProvider="{data.nav}" height="{getHeight(data.hasChanged)}" buttonStyleName="myToggleButtonStyle"></mx:ToggleButtonBar>
+		<!-- <mx:ToggleButtonBar id="pageNav" itemClick="navigatePage(event)" width="{this.width - 6}" dataProvider="{data.nav}" height="{getHeight(data.hasChanged)}" buttonStyleName="myToggleButtonStyle"></mx:ToggleButtonBar> -->
 		
 		<mx:HBox id="myHBox" width="100%" paddingBottom="2" paddingTop="3">
 			<!-- itemRenderer="mx.controls.Label" -->
 			
+			<mx:Label text="Filter: "/>
+			<!-- <mx:HSlider id="sllider" minimum="1000" maximum="5000" labels="{ ['1000','5000' ] }" showDataTip="false" tickInterval="500" snapInterval="500" change="handleSliderChange()"/> -->
+			<!-- <mx:Spacer width="100%"/>		-->
+			<!-- <mx:CheckBox id="checkbox" label="Enable faster searching" change="handleEnableFasterSearchingChange()"/> -->
+			<!-- <mx:Spacer width="100%"/> -->
+			<components:PromptTextInput id="textInput" prompt="Filter List" change="handleSearchChange()" width="140"/>
+			<mx:Label text="({data.visibleElements.length} of {data.numberOfValids})"/>
+			
 			<!-- add columns -->
-			<mx:ComboBox id="columnsdropdown" prompt="- Show Column -" height="18" styleName="myToggleButtonStyle" change="addDataGridColumn(columnsdropdown.selectedItem as Property); columnsdropdown.selectedItem = null;" width="80%" dataProvider="{data.dataTypeProperties}" >
+			<!-- <mx:ComboBox id="columnsdropdown" prompt="- Show Column -" height="18" styleName="myToggleButtonStyle" change="addDataGridColumn(columnsdropdown.selectedItem as Property); columnsdropdown.selectedItem = null;" width="80%" dataProvider="{data.dataTypeProperties}" >
 				<mx:itemRenderer>  
 					<mx:Component>  
  						<mx:Label text="{data.label}" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" />  
 					</mx:Component>  
 				</mx:itemRenderer> 
-			</mx:ComboBox> 
+			</mx:ComboBox> --> 
 		</mx:HBox>
 	</mx:VBox>
 	
@@ -66,6 +76,7 @@ You should have received a copy of the GNU General Public License along with thi
 			import flash.events.MouseEvent;
 			import flash.events.TimerEvent;
 			import flash.utils.Timer;
+			import graphElements.Element;
 			import mx.controls.Button;
 			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.controls.Label;
@@ -78,7 +89,10 @@ You should have received a copy of the GNU General Public License along with thi
 			import org.flashdevelop.utils.FlashConnect;
 			//import org.osflash.thunderbolt.Logger;
 			import mx.binding.utils.BindingUtils;
-			
+			import com.hillelcoren.fasterSearching.interfaces.ISearchable;
+			import com.hillelcoren.fasterSearching.utils.SearchUtils;
+			import com.hillelcoren.fasterSearching.utils.DataGenerator;
+			import com.hillelcoren.fasterSearching.Person;
 			
 			/*private function getTip(_current:Object):String {
 				return "Requirement Description:\n"+(_current as Element).description;
@@ -98,14 +112,17 @@ You should have received a copy of the GNU General Public License along with thi
 			public function setup():void {
 				//Logger.hide = true;
 				//BindingUtils.bindSetter(updateStyleName, (data as ListItem).facet, "isResultSet");
-				pageNav.selectedIndex = data.facet.offset;
-				pageNav.numChildren
+				//pageNav.selectedIndex = data.facet.offset;
+				//pageNav.numChildren
 				data.selectedDataTypeProperties.addEventListener(Event.CHANGE, this.updateColumns);
 				
 				//trace("setup");
 				var myTimer:Timer = new Timer(2000, 1);
 				myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.timerCompleteHandler);
 				myTimer.start();
+				
+				SearchUtils.enableFasterSearch = true;	//fast search enabled
+				data.visibleElements.filterFunction = filterFunction;
 			}
 			
 			private function myLabelFunction(item:Object, column:DataGridColumn):String {
@@ -299,9 +316,9 @@ You should have received a copy of the GNU General Public License along with thi
 				if( lb.indexOf("<") > -1 || lb.indexOf(">") > -1 ){	//if either <<, <, > or >> has been clicked
 					data.createNavBar(Math.ceil(data.numberOfValids/data.elementsPerPage),event.item.data);
 					if( event.item.data == 0 ){
-						pageNav.selectedIndex = 0;
+						//pageNav.selectedIndex = 0;
 					}else{
-						pageNav.selectedIndex = 2;	//0: <<, 1: <, 2: number!
+						//pageNav.selectedIndex = 2;	//0: <<, 1: <, 2: number!
 					}
 					//pageNav.percentWidth
 					
@@ -324,7 +341,21 @@ You should have received a copy of the GNU General Public License along with thi
 					return "";
 				}
 			}
-
+			
+			private function handleSearchChange():void{
+				//var start:Date = new Date();
+				trace("handleSearchChange");
+				data.visibleElements.refresh();
+				
+				//var end:Date = new Date();
+				//var searchTime:int = end.getTime() - start.getTime();
+				
+				//resultsLabel.text = "Search took " + searchTime + " msecs";		
+			}
+			
+			private function filterFunction(item:Element ):Boolean{
+				return SearchUtils.isMatch( item, textInput.text );
+			}
 			
 		]]>
 	</mx:Script>				

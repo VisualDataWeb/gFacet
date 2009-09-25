@@ -35,6 +35,8 @@ package graphElements {
 			}else if (item is graphElements.ListItem) {
 				if (item is graphElements.MapItem) {
 					return new graphElements.MapView();
+				}else if(item is NoPagingListItem) {
+					return new NoPagingListView();	// ListView();
 				}else {
 					return new ListView();
 				}
