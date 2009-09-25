@@ -12,9 +12,12 @@ import com.adobe.flex.extras.controls.springgraph.Item;
 import connection.MirroringConnection;
 import de.polygonal.ds.HashMap;
 import de.polygonal.ds.Iterator;
+import graphElements.NoPagingListItem;
 
 public var listItems:HashMap = new HashMap();
 private var resultSetFacet:Facet = null;
+
+private var _noPaging:Boolean = true; //flag
 
 public function getFacetedChains(_tempFacet:Facet = null):void {
 	//if (_rootFacet == null) _rootFacet = rootFacet;
@@ -59,11 +62,16 @@ public function getListItem(_elementClass:ElementClass, _facet:Facet, _rel:Relat
 	var key:String = _elementClass.id + _facet.id;
 	if (!listItems.containsKey(key)) {
 		var newListItem:ListItem;
-		if (_elementClass.label == "Point") {	//_rel.property.type == "geo:long" || "geo:lat"
-			newListItem = new MapItem(key, _elementClass, myConnection, _facet, _rel, getHighlightColor());
+		if (_noPaging) {
+			newListItem = new NoPagingListItem(key, _elementClass, myConnection, _facet, _rel, getHighlightColor());
 		}else {
-			newListItem = new ListItem(key, _elementClass, myConnection, _facet, _rel, getHighlightColor());
+			if (_elementClass.label == "Point") {	//_rel.property.type == "geo:long" || "geo:lat"
+				newListItem = new MapItem(key, _elementClass, myConnection, _facet, _rel, getHighlightColor());
+			}else {
+				newListItem = new ListItem(key, _elementClass, myConnection, _facet, _rel, getHighlightColor());
+			}
 		}
+		
 		listItems.insert(key, newListItem);
 		//FlashConnect.trace("listItem inserted, key : " + key);
 		graph.add(newListItem);
