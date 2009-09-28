@@ -43,7 +43,7 @@ package graphElements {
 		
 		protected var unfilteredChain:Chain = null;
 		protected var filteredChain:Chain = null;
-		protected var showAllElements:Boolean = true;
+		protected var _showAllElements:Boolean = true;
 		
 		[Bindable] public var properties:ArrayCollection = new ArrayCollection();
 		[Bindable] public var dataTypeProperties:ArrayCollection = new ArrayCollection();
@@ -614,7 +614,7 @@ package graphElements {
 			var iter:Iterator = this.insideElements.getIterator();
 			while (iter.hasNext()) {
 				var e:Element = iter.next();
-				if ((!e.isValid) && this.showAllElements) {	//only if showAll is acitve
+				if ((!e.isValid) && this._showAllElements) {	//only if showAll is acitve
 					this.visibleElements.addItem(e);
 				}else if (e.isValid) {
 					//FlashConnect.trace("element is valid! : "+e.id);
@@ -817,14 +817,14 @@ package graphElements {
 		
 		public function setShowAll(_clicked:Boolean):void {
 			if (_clicked) {
-				this.showAllElements = true;
+				this._showAllElements = true;
 				this.facet.returnOnlyValids = false;
 				//FlashConnect.trace("show all elements");
 				//this.chain = this.unfilteredChain;	//TODO: this.setChain aufrufen!!
 				//this.setInsideElements(this.unfilteredChain.elements);
 				//this.updateVisibleElements();
 			}else {
-				this.showAllElements = false;
+				this._showAllElements = false;
 				this.facet.returnOnlyValids = true;
 				//FlashConnect.trace("show filtered elements");
 				//this.chain = this.filteredChain;
@@ -839,6 +839,10 @@ package graphElements {
 				this.updateVisibleElements();
 				//this.app().getFacetedChains(); //complete update
 			}
+		}
+		
+		public function get showAllElements():Boolean {
+			return _showAllElements;
 		}
 		
 		public function setAsResultSet():void {

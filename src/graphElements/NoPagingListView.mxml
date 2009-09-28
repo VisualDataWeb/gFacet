@@ -353,8 +353,13 @@ You should have received a copy of the GNU General Public License along with thi
 				//resultsLabel.text = "Search took " + searchTime + " msecs";		
 			}
 			
-			private function filterFunction(item:Element ):Boolean{
-				return (SearchUtils.isMatch( item, textInput.text ) && (item.isAvailable || item.isValid || item.isSelected));
+			private function filterFunction(item:Element ):Boolean {
+				if (!data.showAllElements) {	//if also invalid elements should be visible
+					return (SearchUtils.isMatch( item, textInput.text ) && (item.isValid || item.isSelected));
+				}else {
+					return (SearchUtils.isMatch( item, textInput.text ) && (item.isAvailable || item.isValid || item.isSelected));
+				}
+				
 			}
 			
 		]]>
