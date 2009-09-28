@@ -43,15 +43,13 @@ You should have received a copy of the GNU General Public License along with thi
 		
 		<mx:HBox id="myHBox" width="100%" paddingBottom="2" paddingTop="3">
 			<!-- itemRenderer="mx.controls.Label" -->
-			
-			<!-- add columns -->
 			<mx:ComboBox id="columnsdropdown" prompt="- Show Column -" height="18" styleName="myToggleButtonStyle" change="addDataGridColumn(columnsdropdown.selectedItem as Property); columnsdropdown.selectedItem = null;" width="80%" dataProvider="{data.dataTypeProperties}" >
 				<mx:itemRenderer>  
 					<mx:Component>  
  						<mx:Label text="{data.label}" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" />  
 					</mx:Component>  
 				</mx:itemRenderer> 
-			</mx:ComboBox> 
+			</mx:ComboBox>
 		</mx:HBox>
 	</mx:VBox>
 	

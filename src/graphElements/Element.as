@@ -13,12 +13,10 @@ package graphElements{
 	
 	[RemoteClass(alias="com.flashdb.Element")]
     
-	import com.hillelcoren.fasterSearching.AbstractObject;
 	import flash.net.registerClassAlias;
-	import com.hillelcoren.fasterSearching.utils.StringUtils;
 	//import org.osflash.thunderbolt.Logger;
 	
-	[Bindable] public class Element extends AbstractObject{
+	[Bindable] public class Element{
 		public var id:String;
 		
 		public var title:String;	//obsolete 
@@ -245,25 +243,6 @@ package graphElements{
 			return p;*/
 		}
 		
-		public static const FIELD_TITLE:String = "title";	//wird nicht gebraucht!?
-		
-		override public function getSearchFields():Array{	//wird nicht gebraucht!?
-			return [ FIELD_TITLE ];
-		}
-		
-		override public function matchesField( field:String, searchStr:String ):Boolean
-		{
-			return StringUtils.contains( this.title, searchStr );
-			/*if (field == FIELD_EMAIL)
-			{
-				return StringUtils.contains( email, searchStr );
-			}
-			else
-			{
-				return StringUtils.anyWordBeginsWith( this[field], searchStr );
-			}*/
-		}
-			
 	}
 	
 	

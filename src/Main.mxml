@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License along with thi
 				layout="absolute"  
 				fontFamily="Verdana" 
 				fontSize="9"
-				preinitialize="preInitHandler(event)"
 				creationComplete="setup()">
 	
 	<mx:Script source="Source.as"/>
@@ -85,8 +84,6 @@ You should have received a copy of the GNU General Public License along with thi
 			<mx:Spacer height="2"></mx:Spacer>
 			
 			<mx:HBox horizontalAlign="right" width="250">
-				<mx:Button label="settings" click="{settingsClickHandler(event)}"></mx:Button>
-				<mx:Spacer width="100%"></mx:Spacer>
 				<mx:Button id="myAdd" label="add selected" enabled="{(classesDG.selectedItem != null)}" click="{setInitialElementClass(classesDG.selectedItem as ElementClass)}" styleName="myButtonStyle3" />
 			</mx:HBox>
 		</mx:Form>

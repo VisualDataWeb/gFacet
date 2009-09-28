@@ -15,7 +15,6 @@
   <classpaths>
     <class path="src" />
     <class path="lib\SpringGraph" />
-    <class path="lib\FasterSearching" />
   </classpaths>
   <!-- Build options -->
   <build>
@@ -48,7 +47,6 @@
     <element path="lib\GoogleMapsSDK\map_flex_1_16.swc" />
     <element path="lib\DataStructures\as3ds.swc" />
     <element path="lib\NimerComponents\nimerComponents.swc" />
-    <element path="lib\AutoComplete\AutoComplete.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>
@@ -81,6 +79,6 @@
   <!-- Other project options -->
   <options>
     <option showHiddenPaths="False" />
-    <option testMovie="ExternalPlayer" />
+    <option testMovie="Default" />
   </options>
 </project>

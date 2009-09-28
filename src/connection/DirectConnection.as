@@ -42,11 +42,11 @@ package connection {
 	 */
 	 
 	public class DirectConnection extends SPARQLConnection {
-		//public var host:String;
-		//public var basicGraph:String;
-		//public var resultFormat:String;
+		public var host:String;
+		public var basicGraph:String;
+		public var resultFormat:String;
 		public var method:String;
-		//public var prefixes:String;
+		public var prefixes:String;
 		public var phpSessionId:String;
 		
 		private var singleFacets:Array;
