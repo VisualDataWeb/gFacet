@@ -85,7 +85,7 @@ You should have received a copy of the GNU General Public License along with thi
 			<mx:Spacer height="2"></mx:Spacer>
 			
 			<mx:HBox horizontalAlign="right" width="250">
-				<mx:Button label="settings" click="{settingsClickHandler(event)}"></mx:Button>
+				<mx:Button label="settings" click="{settingsClickHandler(event)}" styleName="myButtonStyle3" />
 				<mx:Spacer width="100%"></mx:Spacer>
 				<mx:Button id="myAdd" label="add selected" enabled="{(classesDG.selectedItem != null)}" click="{setInitialElementClass(classesDG.selectedItem as ElementClass)}" styleName="myButtonStyle3" />
 			</mx:HBox>

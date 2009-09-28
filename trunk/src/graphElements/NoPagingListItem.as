@@ -13,6 +13,7 @@ package graphElements {
 	import connection.SPARQLConnection;
 	import graphElements.Chain;
 	import graphElements.ElementClass;
+	import graphElements.Property;
 	
 	public class NoPagingListItem extends ListItem {
 		
@@ -269,6 +270,10 @@ package graphElements {
 			
 		}
 		
+		override public function setShowAll(_clicked:Boolean):void {
+			super.setShowAll(_clicked);
+			visibleElements.refresh();
+		}
 	}
 	
 }

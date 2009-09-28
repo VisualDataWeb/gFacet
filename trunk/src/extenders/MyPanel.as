@@ -127,7 +127,7 @@
 				//this.resultListSet.toggle	= true;
 				
 				//only for the evaluation: 
-				//this.pTitleBar.addChild(this.allButton);
+				this.pTitleBar.addChild(this.allButton);
 				
 				//this.pTitleBar.addChild(this.minimizeButton);
 				//this.pTitleBar.addChild(this.normalMaxButton);
@@ -162,7 +162,7 @@
 			if (showControls) {
 				this.resultListSet.buttonMode = true;
 				this.resultListSet.useHandCursor = true;
-				this.resultListSet.x = this.unscaledWidth - this.resultListSet.width - 40; // 65;
+				this.resultListSet.x = this.unscaledWidth - this.resultListSet.width - 65;
 				this.resultListSet.y = 4;
 				
 				this.allButton.buttonMode	= true;
