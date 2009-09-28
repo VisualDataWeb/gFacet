@@ -34,36 +34,36 @@ package graphElements {
 		[Bindable] public var facet:Facet;
 		
 		public var key:String;
-		private var myConnection:SPARQLConnection;
+		protected var myConnection:SPARQLConnection;
 		
 		[Bindable] public var elementClass:ElementClass = null;
-		private var incomingRel:RelationItem;
+		protected var incomingRel:RelationItem;
 		[Bindable] public var hasChanged:Boolean = false;	//whether the total number of elements has changed due to an update
 		public var highlightColor:uint = uint("0xff0000");	//default
 		
-		private var unfilteredChain:Chain = null;
-		private var filteredChain:Chain = null;
-		private var showAllElements:Boolean = true;
+		protected var unfilteredChain:Chain = null;
+		protected var filteredChain:Chain = null;
+		protected var showAllElements:Boolean = true;
 		
 		[Bindable] public var properties:ArrayCollection = new ArrayCollection();
 		[Bindable] public var dataTypeProperties:ArrayCollection = new ArrayCollection();
 		[Bindable] public var selectedDataTypeProperties:ArrayCollection = new ArrayCollection();
 		
 		//public var validities:HashMap = new HashMap();	//which instances are valid for which selected instances from other facets? 
-		//private var totalNumberOfSelectedElements:int = 0;
+		//protected var totalNumberOfSelectedElements:int = 0;
 		
 		protected var insideElements:HashMap = new HashMap();	//all elements
 		[Bindable] public var visibleElements:ArrayCollection = new ArrayCollection();	//visible elements
 		[Bindable] public var numberOfValids:int = -1;
 		[Bindable] public var numberOfAll:int = 0;
 		
-		private var restrictingElements:HashMap = new HashMap();
+		protected var restrictingElements:HashMap = new HashMap();
 		[Bindable] public var restrictingColors:ArrayCollection = new ArrayCollection();
-		private var possibleRestrictingColors:HashMap = new HashMap();	//restrictingElements that caused no restrictions until now but possibly can
+		protected var possibleRestrictingColors:HashMap = new HashMap();	//restrictingElements that caused no restrictions until now but possibly can
 		
-		private var sortA:Sort = new Sort();	//Create a Sort object to sort the ArrrayCollection.
+		protected var sortA:Sort = new Sort();	//Create a Sort object to sort the ArrrayCollection.
 		
-		private var relIdHelper:int = 0;
+		protected var relIdHelper:int = 0;
 		
 		//[Bindable] public var possibleElementClasses:ArrayCollection = new ArrayCollection(); 
 		
@@ -72,7 +72,7 @@ package graphElements {
 		[Bindable] public var elementsPerPage:uint = 10;
 		
 		//public var pagingIndex:uint = 0;	//ist doch in facet.offset gespeichert
-		private var index:uint = 0;	//wofür?? aber möglicherweise wichtig
+		protected var index:uint = 0;	//wofür?? aber möglicherweise wichtig
 		public var navSize:uint = 4;	//max number of page-buttons below the list (1,2,3,4)
 		
 		public var currentRelStub:RelationItem = null;
@@ -605,7 +605,7 @@ package graphElements {
 		}
 		
 		
-		private function updateVisibleElements():void {
+		protected function updateVisibleElements():void {
 			//FlashConnect.trace("update VisibleElements");
 			//FlashConnect.trace("showAllElements: false, insideElements.size: " + this.insideElements.size);
 			var oldVisibleElements:ArrayCollection = this.visibleElements;

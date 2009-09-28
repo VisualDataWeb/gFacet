@@ -29,7 +29,7 @@ public var btnMenuIcon:Class;
 		
 		
 public function init():void {
-	trace("init!");
+	//trace("init!");
 	initMenuMoveOn.play();
 	menuTimer = new Timer(2000, 0);
 	menuTimer.addEventListener(TimerEvent.TIMER, onMenuTimeOut);
@@ -38,7 +38,7 @@ public function init():void {
 }
 
 private function onMenuTimeOut(event:TimerEvent):void{
-	trace('menuTimeOut'+event);
+	//trace('menuTimeOut'+event);
 	menuTimer.stop();
 	hideMenu();
 }
@@ -60,14 +60,14 @@ private function showMenu():void{
 		initMenuMoveOn.play();
 		menuTimer.start();
 	}
-	trace('[moveOnisPlaying]'+initMenuMoveOn.isPlaying);
+	//trace('[moveOnisPlaying]'+initMenuMoveOn.isPlaying);
 }
 private function hideMenu(event:MouseEvent=null):void{
 	if(menuVisible && (currentElementClass != null)){	//if menu is visible and an initial elementClass has been chosen already
 		if(event!=null){
-			trace(event.currentTarget);
-			trace('[initMenuMoveOff]'+initMenuMoveOff.isPlaying);
-			trace('[moveOnisPlaying]'+initMenuMoveOn.isPlaying);
+			//trace(event.currentTarget);
+			//trace('[initMenuMoveOff]'+initMenuMoveOff.isPlaying);
+			//trace('[moveOnisPlaying]'+initMenuMoveOn.isPlaying);
 			if(!initMenuMoveOff.isPlaying || initMenuMoveOn.isPlaying){
 				initMenuMoveOff.play();	
 				//epvMenu.removeEventListener(MouseEvent.ROLL_OVER,
@@ -81,15 +81,15 @@ private function hideMenu(event:MouseEvent=null):void{
 }
 private function mouseAction(event:MouseEvent=null):void{
 	//trace(event.target);
-	trace(event);
+	//trace(event);
 	if(event.target == 'animatedMenu0'){
 		switch(event.type){
 			case 'rollOut':
-				trace('rollOutEpv0');
+				//trace('rollOutEpv0');
 				break;
 			case 'rollOver':
 				menuTimer.start();
-				trace('rollOverEpv0');
+				//trace('rollOverEpv0');
 				break;
 			case 'mouseMove':
 				//trace('mouseMove');
@@ -101,11 +101,11 @@ private function mouseAction(event:MouseEvent=null):void{
 				if(!menuTimer.running){
 					fastMenuTimer.start();	
 				}						
-				trace('rollOutElse');
+				//trace('rollOutElse');
 				break;
 			case 'rollOver':
 				showMenu();
-				trace('rollOverElse');
+				//trace('rollOverElse');
 				break;
 			case 'mouseMove':
 				menuTimer.stop();
@@ -122,7 +122,7 @@ private function timerAction(action:String,target:String=null):void{
 			menuTimer.start();
 			break;
 		case 'rollOver':
-			trace('rollOver');
+			//trace('rollOver');
 			break;
 		case 'mouseMove':
 			//trace('mouseMove');
@@ -130,8 +130,8 @@ private function timerAction(action:String,target:String=null):void{
 	}
 }
 private function showStatus():void{
-	trace('[moveOnisPlaying]'+initMenuMoveOn.isPlaying);
-	trace('[moveOffisPlaying]'+initMenuMoveOff.isPlaying);
+	//trace('[moveOnisPlaying]'+initMenuMoveOn.isPlaying);
+	//trace('[moveOffisPlaying]'+initMenuMoveOff.isPlaying);
 }
 
 public function getElementClasses(userInput:String):void {
