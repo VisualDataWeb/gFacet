@@ -190,13 +190,13 @@ package graphElements {
 				this.facet.selectedElementIds.splice(this.facet.selectedElementIds.indexOf(_e.id), 1);
 				_e.isHighlighted = false;	//nur für den update der farbe
 				_e.isSelected = false;
-				_e.status = "invalid";
+				//_e.status = "invalid";
 			}else {				//selected
 				this.facet.selectedElementIds.push(_e.id);
 				_e.isHighlighted = true;	//nur für den update der farbe
 				_e.isSelected = true;
 				_e.highlightColor = this.highlightColor;
-				_e.status = "selected";
+				//_e.status = "selected";
 			}
 			this.app().triggeredColor = this.highlightColor;	//this is now the source of all updates!
 			this.app().setTriggeringElement(_e);	//macht die triggeredColor überflüssig
@@ -220,9 +220,11 @@ package graphElements {
 		
 		public function addRelationItem():void {
 			//Logger.debug("addRelationItem! " + this.id);
-			FlashConnect.trace("addRelationItem! " + this.id);
+			//FlashConnect.trace("addRelationItem! " + this.id);
+			
 			if (this.properties.length != 0) {	//only if properties are left to build new facets
 				var newRel:RelationItem = new RelationItem(this.key + "_rel" + this.relIdHelper, this);	//problem mit id!!! -> eigentlich gelöst durch relIdHelper
+				trace("new currentRelStub "+newRel.id);
 				this.currentRelStub = newRel;
 				this.relIdHelper++;
 				trace("properties.length", properties.length);
@@ -247,16 +249,17 @@ package graphElements {
 		}
 		
 		public function addListItem(_newRel:RelationItem):ListItem{
-			FlashConnect.trace("addListItem: ,_newRel: "+_newRel.id);
+			//FlashConnect.trace("addListItem: ,_newRel: "+_newRel.id);
 			var prop:Property = _newRel.property;
-			
+			trace("newRel prop: " + prop.id);
+			trace("1) length props: " + this.properties.length);
 			//remove property // the property will be added again when the facet gets closed by the user! -> removeFacet
 			this.properties.removeItemAt(this.properties.getItemIndex(prop));
-			
+			trace("2) length props: " + this.properties.length);
 			var newFacet:Facet = new Facet("facet_" + prop.id + "_" + prop.objectClass.id, prop);
 			newFacet.levelInTheTree = this.facet.levelInTheTree + 1;
-			FlashConnect.trace("prop.id " + prop.id);
-			FlashConnect.trace("object class.id: " + prop.objectClass.id);
+			//FlashConnect.trace("prop.id " + prop.id);
+			//FlashConnect.trace("object class.id: " + prop.objectClass.id);
 			this.facet.outgoingFacets.push(newFacet);
 			FlashConnect.trace("outgoingF: " + this.facet.outgoingFacets.length);
 			newFacet.incomingFacet = this.facet;
@@ -276,7 +279,6 @@ package graphElements {
 			var dY:Number = _newRel.getY() - this.getY();
 			newList.setPosition(_newRel.getX() + dX/2, _newRel.getY() + dY/2);
 			
-			//trace("test00");
 			//TODO: anstoßen, neue relation zum auswählen der listItems!
 			this.addRelationItem();
 			//trace("test55");
@@ -287,7 +289,7 @@ package graphElements {
 		
 		public function getDistinctPropertyTypes_Result(_list:Array):void {	//must be a list of properties
 			//CursorManager.removeBusyCursor();
-			//FlashConnect.trace("RETURNED: DistinctProperties " + _list.length);
+			trace("RETURNED: DistinctProperties " + _list.length);
 			var dataTypeArray:Array = new Array();
 			var objectTypeArray:Array = new Array();
 			for each(var p:Property in _list) {
@@ -426,7 +428,7 @@ package graphElements {
 			for each(var e:Element in this.chain.elements) {
 				//set the selected ones
 				if (this.facet.selectedElementIds.indexOf(e.id) != -1) {
-					e.status = "selected";
+					//e.status = "selected";
 					e.isSelected = true;
 				}
 				e.init();

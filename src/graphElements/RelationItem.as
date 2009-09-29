@@ -30,16 +30,20 @@ package graphElements {
 		public function RelationItem(_id:String, _previous:ListItem) {
 			super(_id);
 			trace("new RelationItem: " + _id);
-			FlashConnect.trace("new RelationItem: " + _id);
+			//FlashConnect.trace("new RelationItem: " + _id);
 			this.previousItem = _previous;
 		}
 		
 		public function setProperty(_prop:Property):void {
-			this.property = _prop;
-			this.rLabel = this.property.label.slice(0, this.property.label.indexOf(":"));// +":" + this.property.objectClass.label;// this.property.type +":" + this.property.value;
-			if (this.rLabel.length > 14) {
-				this.rLabel = this.rLabel.substr(this.rLabel.length - 14, this.rLabel.length - 1);
-			}
+			//if (_prop != null && _prop.label.length > 0) {
+			trace("setProperty " + _prop.id);
+				this.property = _prop;
+				this.rLabel = this.property.label.slice(0, this.property.label.indexOf(":"));// +":" + this.property.objectClass.label;// this.property.type +":" + this.property.value;
+				if (this.rLabel.length > 14) {
+					this.rLabel = this.rLabel.substr(this.rLabel.length - 14, this.rLabel.length - 1);
+				}
+			//}
+			
 			
 			//this.previousItem.addListItem(this);
 		}

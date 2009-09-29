@@ -29,9 +29,10 @@ package graphElements {
 		
 		public function getView(item:Item):UIComponent
 		{
-			FlashConnect.trace("getView from the viewFactory for item: "+item.id);
+			//trace("getView from the viewFactory for item: "+item.id);
 			if (item is graphElements.RelationItem) {
-				return new RelationView();
+				trace("------------------ new RelationView: " + item.id);
+				return new AutocompleteRelationView(); // RelationView();
 			}else if (item is graphElements.ListItem) {
 				if (item is graphElements.MapItem) {
 					return new graphElements.MapView();
