@@ -46,12 +46,12 @@ package graphElements{
 		public var listIndex:int;
 		
 		public var restrictingColor:uint;
-		public var status:String = "invalid";	//0 = selected, 1 = valid, 2 = invalid	//deprecated!!
-		public var isValid:Boolean = false;
-		public var isSelected:Boolean = false;
-		public var isNew:Boolean = true;
-		public var isAvailable:Boolean = false;	//available for further filtering
-		public var isActive:Boolean = false;	//whether this element can be used at all under the current resultSet!
+		//public var status:String = "invalid";	//0 = selected, 1 = valid, 2 = invalid	//deprecated!!
+		private var _isValid:Boolean = false;
+		private var _isSelected:Boolean = false;
+		private var _isNew:Boolean = true;
+		private var _isAvailable:Boolean = false;	//available for further filtering
+		private var _isActive:Boolean = false;	//whether this element can be used at all under the current resultSet!
 		
 		
 		/*
@@ -263,7 +263,40 @@ package graphElements{
 				return StringUtils.anyWordBeginsWith( this[field], searchStr );
 			}*/
 		}
-			
+		
+		public function set isValid(b:Boolean):void {
+			_isValid = b;
+		}
+		
+		public function get isValid():Boolean {
+			return _isValid;
+		}
+		
+		public function set isActive(b:Boolean):void {
+			_isActive = b;
+		}
+		
+		public function get isActive():Boolean {
+			return _isActive;
+		}
+		
+		public function set isAvailable(b:Boolean):void {
+			_isAvailable = b;
+		}
+		
+		public function get isAvailable():Boolean {
+			return _isAvailable;
+		}
+		
+		public function set isSelected(b:Boolean):void {
+			_isSelected = b;
+		}
+		
+		public function get isSelected():Boolean {
+			return _isSelected;
+		}
+		
+		
 	}
 	
 	

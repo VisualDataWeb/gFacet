@@ -16,6 +16,7 @@
     <class path="src" />
     <class path="lib\SpringGraph" />
     <class path="lib\FasterSearching" />
+    <class path="lib\MatchComboBox" />
   </classpaths>
   <!-- Build options -->
   <build>

@@ -355,9 +355,9 @@ You should have received a copy of the GNU General Public License along with thi
 			
 			private function filterFunction(item:Element ):Boolean {
 				if (!data.showAllElements) {	//if also invalid elements should be visible
-					return (SearchUtils.isMatch( item, textInput.text ) && (item.isValid || item.isSelected));
+					return (SearchUtils.isMatch( item, textInput.text ) && (item.isValid || item.isSelected || item.isAvailable));
 				}else {
-					return (SearchUtils.isMatch( item, textInput.text ) && (item.isAvailable || item.isValid || item.isSelected));
+					return (SearchUtils.isMatch( item, textInput.text ));
 				}
 				
 			}

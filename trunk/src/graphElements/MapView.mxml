@@ -241,17 +241,17 @@ You should have received a copy of the GNU General Public License along with thi
 			if (_e.isSelected) {
 				color = data.highlightColor;
 			}else if (_e.isValid) {
-				if (_e.isNew) {
+				/*if (_e.isNew) {
 					color = uint("0xE0FFFF");
-				}else {
+				}else {*/
 					color = uint("0xFFFFFF");
-				}
+				//}
 			}else {
-				if (_e.isNew) {
+				/*if (_e.isNew) {
 					color = uint("0xFFEBCD");
-				}else {
+				}else {*/
 					color = uint("0xDCDCDC");
-				}
+				//}
 			}
 			
 			var opts:MarkerOptions = new MarkerOptions( {

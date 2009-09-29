@@ -28,7 +28,7 @@ package graphElements {
 			this.elementsPerPage = 3000;
 			this.cLabel = this.elementClass.label;// + "s";// this.chain.property.type +":" + this.chain.property.value;
 			if (this.cLabel.length > 30) {
-				this.cLabel = this.cLabel.substr(0, 30)+"...";
+				this.cLabel = this.cLabel.substr(0, 27)+"...";
 				//this.cLabel = this.cLabel.substr(this.cLabel.length - 14, this.cLabel.length - 1);
 			}
 		}
@@ -92,7 +92,7 @@ package graphElements {
 			for each(var e:Element in this.chain.elements) {
 				//set the selected ones
 				if (this.facet.selectedElementIds.indexOf(e.id) != -1) {
-					e.status = "selected";
+					//e.status = "selected";
 					e.isSelected = true;
 				}
 				e.init();
