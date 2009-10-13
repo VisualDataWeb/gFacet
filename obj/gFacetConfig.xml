@@ -5,21 +5,21 @@
   <target-player>10.0.0</target-player>
   <compiler>
     <source-path append="true">
-      <path-element>E:\EigeneDateien\Dokumente\UniStuttgart\Tools\Flash\gFacet\src</path-element>
-      <path-element>E:\EigeneDateien\Dokumente\UniStuttgart\Tools\Flash\gFacet\lib\SpringGraph</path-element>
-      <path-element>E:\EigeneDateien\Dokumente\UniStuttgart\Tools\Flash\gFacet\lib\FasterSearching</path-element>
-      <path-element>E:\EigeneDateien\Dokumente\UniStuttgart\Tools\Flash\gFacet\lib\MatchComboBox</path-element>
-      <path-element>C:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
+      <path-element>U:\GoogleCode\gfacet\src</path-element>
+      <path-element>U:\GoogleCode\gfacet\lib\SpringGraph</path-element>
+      <path-element>U:\GoogleCode\gfacet\lib\FasterSearching</path-element>
+      <path-element>U:\GoogleCode\gfacet\lib\MatchComboBox</path-element>
+      <path-element>C:\Programme\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
     <library-path append="true">
-      <path-element>E:\EigeneDateien\Dokumente\UniStuttgart\Tools\Flash\gFacet\lib\GoogleMapsSDK\map_flex_1_16.swc</path-element>
-      <path-element>E:\EigeneDateien\Dokumente\UniStuttgart\Tools\Flash\gFacet\lib\DataStructures\as3ds.swc</path-element>
-      <path-element>E:\EigeneDateien\Dokumente\UniStuttgart\Tools\Flash\gFacet\lib\NimerComponents\nimerComponents.swc</path-element>
-      <path-element>E:\EigeneDateien\Dokumente\UniStuttgart\Tools\Flash\gFacet\lib\AutoComplete\AutoComplete.swc</path-element>
+      <path-element>U:\GoogleCode\gfacet\lib\GoogleMapsSDK\map_flex_1_16.swc</path-element>
+      <path-element>U:\GoogleCode\gfacet\lib\DataStructures\as3ds.swc</path-element>
+      <path-element>U:\GoogleCode\gfacet\lib\NimerComponents\nimerComponents.swc</path-element>
+      <path-element>U:\GoogleCode\gfacet\lib\AutoComplete\AutoComplete.swc</path-element>
     </library-path>
   </compiler>
   <file-specs>
-    <path-element>E:\EigeneDateien\Dokumente\UniStuttgart\Tools\Flash\gFacet\src\Main.mxml</path-element>
+    <path-element>U:\GoogleCode\gfacet\src\Main.mxml</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>
