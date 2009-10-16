@@ -1137,7 +1137,7 @@ package connection {
 				
 				//FlashConnect.trace(ar1.getItemAt(0).title);
 				
-				ar2 = ar1.toArray().slice(_offset, _offset + _limit);
+				ar2 = ar1.toArray(); //ar1.toArray().slice(_offset, _offset + _limit);	//no offset or limit!!!
 				FlashConnect.trace("ar2[0]: " + ar2[0].title);
 			}else {
 				FlashConnect.trace("no elements left!");
