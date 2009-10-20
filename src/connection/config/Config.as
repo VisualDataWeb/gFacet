@@ -180,6 +180,11 @@ package connection.config
 			return true;
 		}
 		
+		public function clone():IConfig {
+			return new Config(new String(name), new String(description), new String(endpointURI), new String(defaultGraphURI), new Boolean(isVirtuoso),
+				new ArrayCollection(ignoredProperties.toArray()), new Boolean(useProxy), new ArrayCollection(autocompleteURIs.toArray()), lookUp);
+		}
+		
 		override public function toString():String {
 			return "Name: " + name + "\n" +
 					"Description: " + description  + "\n" +

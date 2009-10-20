@@ -8,160 +8,112 @@
  * You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */ 
 
+import connection.config.IConfig;
+import connection.IConnection;
+import connection.SPARQLConnection;
+import connection.SPARQLResultEvent;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
-import mx.effects.easing.Elastic;
+import flash.xml.XMLDocument;
+import graphElements.ElementClass;
+import graphElements.Facet;
+import graphElements.ListItem;
+import graphElements.Property;
+import mainMenu.events.InitialElementClassEvent;
+import mainMenu.MainMenuModel;
+import mx.collections.ArrayCollection;
+import mx.controls.dataGridClasses.DataGridColumn;
+import mx.core.Application;
 import flash.utils.Timer;
 import mx.events.ItemClickEvent;
 import mx.collections.Sort;
 import mx.collections.SortField;
-		
+import mx.managers.CursorManager;
+import mx.managers.PopUpManager;
+import mx.rpc.events.FaultEvent;
+import mx.rpc.events.ResultEvent;
+import mx.rpc.xml.SimpleXMLDecoder;
+import mx.utils.ArrayUtil;
+import mx.utils.ObjectUtil;
+import popup.ConfigSelectionEvent;
+import popup.ExpertSettings;
 
-private var menuTimer:Timer;
-private var fastMenuTimer:Timer;
-private var menuVisible:Boolean;
-[Bindable]
-private var showMenuButton:Boolean;
+private var _model:MainMenuModel;
 
-[Embed(source="../../assets/img/Menu.png")]
-[Bindable]
-public var btnMenuIcon:Class;
-		
-		
 public function init():void {
-	//trace("init!");
-	initMenuMoveOn.play();
-	menuTimer = new Timer(2000, 0);
-	menuTimer.addEventListener(TimerEvent.TIMER, onMenuTimeOut);
-	fastMenuTimer = new Timer(500, 0);
-	fastMenuTimer.addEventListener(TimerEvent.TIMER, onFastMenuTimeOut);
-}
-
-private function onMenuTimeOut(event:TimerEvent):void{
-	//trace('menuTimeOut'+event);
-	menuTimer.stop();
-	hideMenu();
-}
-private function onFastMenuTimeOut(event:TimerEvent):void{
-	//trace(event);
-	fastMenuTimer.stop();
-	hideMenu();
-}
-private function setMenuVisible(status:Boolean):void{
-	menuVisible=status;
-	if(status){
-		showMenuButton=false;
-	}else{
-		showMenuButton=true;
-	}
-}
-private function showMenu():void{
-	if(!menuVisible){
-		initMenuMoveOn.play();
-		menuTimer.start();
-	}
-	//trace('[moveOnisPlaying]'+initMenuMoveOn.isPlaying);
-}
-private function hideMenu(event:MouseEvent=null):void{
-	if(menuVisible && (currentElementClass != null)){	//if menu is visible and an initial elementClass has been chosen already
-		if(event!=null){
-			//trace(event.currentTarget);
-			//trace('[initMenuMoveOff]'+initMenuMoveOff.isPlaying);
-			//trace('[moveOnisPlaying]'+initMenuMoveOn.isPlaying);
-			if(!initMenuMoveOff.isPlaying || initMenuMoveOn.isPlaying){
-				initMenuMoveOff.play();	
-				//epvMenu.removeEventListener(MouseEvent.ROLL_OVER,
-			}
-		}else{
-			//timer timed out
-			initMenuMoveOff.play();	
-		}
-	}
-	//trace('[moveOffisPlaying]'+initMenuMoveOff.isPlaying);
-}
-private function mouseAction(event:MouseEvent=null):void{
-	//trace(event.target);
-	//trace(event);
-	if(event.target == 'animatedMenu0'){
-		switch(event.type){
-			case 'rollOut':
-				//trace('rollOutEpv0');
-				break;
-			case 'rollOver':
-				menuTimer.start();
-				//trace('rollOverEpv0');
-				break;
-			case 'mouseMove':
-				//trace('mouseMove');
-				break;
-		}
-	}else{
-		switch(event.type){
-			case 'rollOut':
-				if(!menuTimer.running){
-					fastMenuTimer.start();	
-				}						
-				//trace('rollOutElse');
-				break;
-			case 'rollOver':
-				showMenu();
-				//trace('rollOverElse');
-				break;
-			case 'mouseMove':
-				menuTimer.stop();
-				//trace('mouseMove');
-				break;
-		}
-	}
 	
 }
-private function timerAction(action:String,target:String=null):void{
-	//trace(event);
-	switch(action){
-		case 'rollOut':
-			menuTimer.start();
-			break;
-		case 'rollOver':
-			//trace('rollOver');
-			break;
-		case 'mouseMove':
-			//trace('mouseMove');
-			break;
+
+public function get model():MainMenuModel {
+	if (_model == null) {
+		_model = new MainMenuModel();
 	}
+	return _model;
 }
-private function showStatus():void{
-	//trace('[moveOnisPlaying]'+initMenuMoveOn.isPlaying);
-	//trace('[moveOffisPlaying]'+initMenuMoveOff.isPlaying);
+
+[Bindable(event="MainMenuConnectionChange")]
+public function get myConnection():IConnection {
+	return model.connection;
+}
+
+public function set myConnection(value:IConnection):void {
+	model.connection = value;
+	dispatchEvent(new Event("MainMenuConnectionChange"));
 }
 
 public function getElementClasses(userInput:String):void {
-	currentElementClass = null;
-	elementClasses = new ArrayCollection();
-	//Logger.debug("test");
-	//Logger.debug("send getElementClasses for", userInput);
+	model.currentElementClass = null;
+	model.elementClasses = new ArrayCollection();
 	
+	var query:String = getQuery(userInput);
 	
-	var f:Facet = new Facet("conceptSearchFacet", null, "conceptChain", null, null, null, new Property("numOfInstances", "numOfInstances"), conceptsPerPage, 0);
+	mainMenuForm.enabled = false;
 	
-	myConnection.sendCommand('getElementClasses', getElementClasses_Result, [userInput, f]); //facet->property->value/type = userInput
-	//myConnection.sendCommand('getConcepts', getConcepts_Result, [f, userInput]);
+	myConnection.executeSparqlQuery(new ArrayCollection([userInput]), query, getElementClasses_Result, "XML", true, getElementClasses_Fault);
 	
-	//CursorManager.setBusyCursor();
 }
 
-public function getElementClasses_Result(_list:Array):void {
-	//CursorManager.removeBusyCursor();
-	//FlashConnect.trace("RETURNED: ElementClasses ");
-	if (_list.length == 0) {
-		_list[0] = "no results";
+private var resultNS:Namespace = new Namespace("http://www.w3.org/2005/sparql-results#");
+
+private function getElementClasses_Fault(e:FaultEvent):void {
+	mainMenuForm.enabled = true;
+}
+
+private function getElementClasses_Result(e:SPARQLResultEvent):void {
+	
+	mainMenuForm.enabled = true;
+	
+	var result:XML = new XML(e.result);
+	
+	model.elementClasses = new ArrayCollection();
+	
+	var results:Array = new Array();
+	
+	if (result..resultNS::results == "") {
+		model.elementClasses.addItem("no results");
+	}else {
+		
+		model.elementClasses = new ArrayCollection();
+		
+		for each (var res:XML in result..resultNS::results.resultNS::result) {
+			var elem:ElementClass = new ElementClass();
+			elem.id = res.resultNS::binding.(@name == "category").resultNS::uri;
+			elem.label = res.resultNS::binding.(@name == "label").resultNS::literal;
+			elem.numberOfObjectInstances = res.resultNS::binding.(@name == "numOfInstances").resultNS::literal;
+			model.elementClasses.addItem(elem);
+		}
+		
+		if (model.elementClasses.length == 0) {
+			model.elementClasses.addItem("no results");
+		}
 	}
-	elementClasses = new ArrayCollection(_list);
 	
 	var cols:Array = classesDG.columns;
-	if (elementClasses[0] is String) {
+	if (model.elementClasses[0] is String) {
 		
 	}else {
-		if (elementClasses[0].numberOfObjectInstances >= 0) {
+		if (model.elementClasses[0].numberOfObjectInstances >= 0) {
 			
 			if (cols.length == 1) {
 				var col:DataGridColumn = new DataGridColumn();
@@ -176,7 +128,7 @@ public function getElementClasses_Result(_list:Array):void {
 			//Sort the elementClasses according to the number of instances they have
 			var numericDataSort:Sort = new Sort();
 			numericDataSort.fields = [new SortField("numberOfObjectInstances", false, true, true)];
-			elementClasses.sort = numericDataSort;
+			model.elementClasses.sort = numericDataSort;
 		}else {
 			if (cols.length > 1) {
 				cols.splice(1, 1);
@@ -185,40 +137,84 @@ public function getElementClasses_Result(_list:Array):void {
 			
 			var alphaDataSort:Sort = new Sort();
 			alphaDataSort.fields = [new SortField("label", false, false, false)];
-			elementClasses.sort = alphaDataSort;
+			model.elementClasses.sort = alphaDataSort;
 		}
 	}
 	
-	elementClasses.refresh();
-	//TODO
-	//createNavBar(5, 0);	// (numberOfPages, offset)
+	model.elementClasses.refresh();
+	
 }
 
-/*public function getConcepts_Result(_conceptChain:Chain):void {
+private function getQuery(userInput:String):String {
+	var query:String = "";
 	
-}*/
-
-public function getElementClasses_Fault(fault:String):void {
-	//CursorManager.removeBusyCursor();
-	//FlashConnect.trace("There was a problem with getElementClasses: " + fault);
-	//FlashConnect.trace("-------------");
+	var pattern:RegExp;
+	pattern = / /g;
+	userInput = userInput.replace(pattern, " 'and' ");
+	
+	var prefixes:String = "";
+		//"PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
+		//"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> " +
+		//"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+		//"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+		//"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
+		//"PREFIX dc: <http://purl.org/dc/elements/1.1/> " +
+		//"PREFIX dbpedia2: <http://dbpedia.org/property/> " +
+		//"PREFIX dbpedia: <http://dbpedia.org/> " +
+		//"PREFIX skos: <http://www.w3.org/2004/02/skos/core#> ";
+	
+	query += prefixes;
+	
+	if (model.connection.config.isVirtuoso) {
+		query += "SELECT DISTINCT ?category ?label " +
+		"COUNT(?o) AS ?numOfInstances  " + 
+		"WHERE { ?category rdf:type skos:Concept . " +  
+				"?o skos:subject ?category . " +
+				"?category rdfs:label ?label .  " +
+				"?label bif:contains \"'" + userInput + "'\" .  " +
+				"FILTER (lang(?label) = 'en') " +
+		"} ORDER BY DESC(?numOfInstances) LIMIT 30 ";
+	}else {
+		query += "SELECT DISTINCT ?category ?label " +
+		"COUNT(?o) AS ?numOfInstances  " + 
+		"WHERE { ?category rdf:type skos:Concept . " +  
+				"?o skos:subject ?category . " +
+				"?category rdfs:label ?label .  " +
+				"FILTER regex(?l, '" + userInput + "', 'i')  . } "; 
+				"FILTER (lang(?label) = 'en') " +
+		"} ORDER BY DESC(?numOfInstances) LIMIT 30 ";
+	}
+	
+	return query;
 }
 
 private function setInitialElementClass(_class:ElementClass): void {
-	//FlashConnect.trace("change currentElementClass");
-	currentElementClass = _class;
 	
-	//startconceptlabel.visible = false;
-	//classdropdown.visible = false;
-	var listItem:ListItem = getListItem(currentElementClass,  new Facet("firstFacet_"+_class.id, null), null);
+	model.currentElementClass = _class;
 	
-	//currentResultSet = listItem;	//schlecht!!
-	//setCurrentItem(listItem);
-	//proxy.getElements(getElements_Result, getElements_Fault, currentElementClass);
-	changeHelp1();
+	dispatchEvent(new InitialElementClassEvent(_class));
 	
-	listItem.setAsResultSet();	//initially the first listItem is also the resultSet!
-	//restart();
+}
+
+private function settingsClickHandler(event:MouseEvent):void {
+	var pop:ExpertSettings = PopUpManager.createPopUp(this, ExpertSettings) as ExpertSettings;
+	pop.addEventListener(ConfigSelectionEvent.CONFIGSELECTION, expertSettingsHandler);
+}
+
+private function expertSettingsHandler(e:ConfigSelectionEvent):void {
+	model.connection.config = e.selectedConfig;
+}
+
+private function mouseOverHandler(e:Event):void {
+	if (mainMenuForm.enabled) {
+		CursorManager.removeBusyCursor();
+	}else {
+		CursorManager.setBusyCursor();
+	}
+}
+
+private function mouseOutHandler(e:Event):void {
+	CursorManager.removeBusyCursor();
 }
 
 /* ---------- conceptNav-------------------*/
@@ -247,10 +243,6 @@ private function navigateConcepts(event:ItemClickEvent):void {
  * @param	set 	offset (current page!)
  */
 public function createNavBar(numberOfPages:uint = 1, set:uint = 0):void {
-	//Logger.debug("createNavBar");
-	//Logger.debug("number of pages", numberOfPages);
-	//Logger.debug("offset", set);
-	//Logger.debug("navSize", navSize);
 	conceptNavData.removeAll();
 	if( numberOfPages > 1 ){
 		if( set != 0 ){
@@ -266,7 +258,6 @@ public function createNavBar(numberOfPages:uint = 1, set:uint = 0):void {
 			pg = x + set;
 			conceptNavData.addItem({label: pg + 1,data: pg});	//for example: label=1 and data=0
 		}
-		//Logger.debug("conceptNavData.length", conceptNavData.length);
 		
 		if( pg < numberOfPages - 1 ){	//if more pages exist than navSize!
 			conceptNavData.addItem({label:">", data:pg + 1});	//label and data 

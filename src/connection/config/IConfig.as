@@ -66,6 +66,8 @@ package connection.config
 		function set useProxy(value:Boolean):void;
 		
 		function equals(value:IConfig):Boolean
+		
+		function clone():IConfig;
 	}
 	
 }

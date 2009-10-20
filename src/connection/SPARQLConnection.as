@@ -10,6 +10,7 @@
 
 package connection {
 	import connection.config.IConfig;
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.utils.Dictionary;
 	import mx.collections.ArrayCollection;
@@ -18,7 +19,7 @@ package connection {
 	import global.StatusModel;
 	import flash.system.Security;
 	
-	public class SPARQLConnection extends EventDispatcher {
+	public class SPARQLConnection extends EventDispatcher implements IConnection {
 		public var host:String;
 		public var basicGraph:String;
 		public var resultFormat:String = "XML";
@@ -38,17 +39,38 @@ package connection {
 			
 		}
 		
+		public function clone():IConnection {
+			var con:IConnection = new SPARQLConnection();
+			con.config = config.clone();
+			return con;
+		}
+		
+		
+		private var _config:IConfig = null;
+		
+		[Bindable(event="ConfigChange")]
+		public function get config():IConfig {
+			if (_config == null) {
+				_config = ConnectionModel.getInstance().sparqlConfig.clone();
+			}
+			return _config;
+		}
+		
+		public function set config(value:IConfig):void {
+			ConnectionModel.getInstance().sparqlConfig = value;
+			_config = value;
+			dispatchEvent(new Event("ConfigChange"));
+		}
+		
+		public var phpSessionID:String = "";
+		
 		/**
 		 * Ab hier von Klasse aus RelFinder kopiert!
 		 */
 		
 		private var contentType:String = "application/sparql-results+json";
 		
-		public function get config():IConfig {
-			return ConnectionModel.getInstance().sparqlConfig;
-		}
-		
-		 public function executeSparqlQuery(sources:ArrayCollection, sparqlQueryString:String, resultHandler:Function, format:String = "XML", useDefaultGraphURI:Boolean = true, errorHandler:Function = null, parsingInformations:Object = null):SPARQLService {
+		public function executeSparqlQuery(sources:ArrayCollection, sparqlQueryString:String, resultHandler:Function, format:String = "XML", useDefaultGraphURI:Boolean = true, errorHandler:Function = null, parsingInformations:Object = null):SPARQLService {
 			//Alert.show(sparqlQueryString);
 			
 			if (resultHandler == null) {
@@ -82,6 +104,11 @@ package connection {
 			if (useDefaultGraphURI && config.defaultGraphURI != null && config.defaultGraphURI != "") {
 				params["default-graph-uri"] = config.defaultGraphURI;
 			}
+			
+			if (phpSessionID != null && phpSessionID != "") {
+				params["SESSIONID"] = phpSessionID;
+			}
+			
 			params["format"] = format;
 			params["query"] = sparqlQueryString;
 			

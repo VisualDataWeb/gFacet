@@ -25,6 +25,7 @@ You should have received a copy of the GNU General Public License along with thi
 			import mx.controls.List;
 			import mx.core.Application;
 			import mx.events.ListEvent;
+			import popup.ConfigSelectionEvent;
 			
 			import connection.model.ConnectionModel;
 			import mx.controls.RadioButton;
@@ -54,6 +55,8 @@ You should have received a copy of the GNU General Public License along with thi
 			}
 			
 			public function apply():void {
+				
+				dispatchEvent(new ConfigSelectionEvent(configList.selectedItem as IConfig));
 				
 				ConnectionModel.getInstance().sparqlConfig = configList.selectedItem as IConfig;
 				

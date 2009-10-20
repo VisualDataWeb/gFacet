@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 
+Copyright (C) 2009 Philipp Heim and Timo Stegemann (email to: heim.philipp@googlemail.com)
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.	
+-->
+	
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+				creationComplete="init()" >
+	
+	<mx:Script source="MainMenuController.as"/>
+	
+	<mx:VBox paddingLeft="0" paddingTop="0" paddingRight="0" paddingBottom="0">
+	
+		<mx:Form id="mainMenuForm" paddingLeft="10" paddingTop="10" paddingRight="10" paddingBottom="0"
+				horizontalGap="1" indicatorGap="2" verticalGap="3" styleName="chainItemStyle"
+				mouseOver="mouseOverHandler(event)" mouseOut="mouseOutHandler(event)">
+			<mx:Label width="250" text="Search for classes and add them to the graph."/>
+			<mx:HBox width="250">
+				<mx:FormItem label="Search:" defaultButton="{myOk}" direction="horizontal"  >
+					<mx:TextInput id="textInput" text="german football" width="156" />
+				</mx:FormItem>
+				<mx:Button id="myOk" label="ok" click="{getElementClasses(textInput.text);}" styleName="myButtonStyle3" />
+			</mx:HBox>
+			<mx:Spacer height="2" />
+			<mx:FormItem defaultButton="{myAdd}" verticalGap="0">
+				<mx:DataGrid id="classesDG" width="250" height="200" dataProvider="{model.elementClasses}" enabled="{(model.elementClasses.length > 0)}" headerStyleName="myButtonStyle2" styleName="myButtonStyle3">
+					<mx:columns>
+						<mx:DataGridColumn dataField="label" headerText="Found classes" showDataTips="true" dataTipField="id"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+				<mx:ToggleButtonBar id="conceptNav" itemClick="navigateConcepts(event)" width="250" height="18" dataProvider="{conceptNavData}" buttonStyleName="myToggleButtonStyle"></mx:ToggleButtonBar>
+			
+			</mx:FormItem>
+			
+		</mx:Form>
+		
+		<mx:HBox paddingLeft="10" paddingTop="0" paddingRight="10" paddingBottom="20" horizontalAlign="right" width="100%">
+			<mx:Button label="settings" click="{settingsClickHandler(event)}" styleName="myButtonStyle3" />
+			<mx:Spacer width="100%" />
+			<mx:Button id="myAdd" label="add selected" enabled="{(classesDG.selectedItem != null)}" click="{setInitialElementClass(classesDG.selectedItem as ElementClass)}" styleName="myButtonStyle3" />
+		</mx:HBox>
+		
+	</mx:VBox>
+</mx:Canvas>

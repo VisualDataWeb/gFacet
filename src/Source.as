@@ -19,17 +19,21 @@ import connection.DirectConnection;
 import connection.MirroringConnection;
 import flash.events.Event;
 import flash.events.MouseEvent;
+import flash.utils.Timer;
 import graphElements.*;
+import mainMenu.events.InitialElementClassEvent;
 import mainMenu.MainMenuController;
 import graphElements.GraphController;
 import connection.SPARQLConnection;
 import mx.collections.ArrayCollection;
 import mx.controls.Alert;
+import mx.controls.Text;
 import mx.managers.PopUpManager;
 import mx.rpc.events.FaultEvent;
 import mx.rpc.events.ResultEvent;
 import mx.rpc.http.HTTPService;
 import popup.ExpertSettings;
+import mx.effects.easing.Elastic;
 
 //FLAG
 private static var connectionType:String = "mirroring"; // "mirroring_knoodl"; // "mirroring"; // "mirroring_swore"; // "mirroring";	//indirect (over PHP) direct or mirroring connection to an SPARQL endpoint
@@ -37,19 +41,20 @@ private static var connectionType:String = "mirroring"; // "mirroring_knoodl"; /
 [Bindable]
 public var graph:Graph = new Graph();
 
-[Bindable]
-public var elementClasses:ArrayCollection = new ArrayCollection();	//one can be chosen as the mainClass by the user
-[Bindable]
-private var currentElementClass:ElementClass = null; 
-
 private var myConnection:SPARQLConnection = null;
 
 private var sparqlEndpoint:String = "";
 private var phpSessionID:String = "";
 private var basicGraph:String = "";
 
-private function setup(): void {
-	trace("setup");
+
+private function init():void {
+	setupConnection();
+	initMainMenuComponents();
+}
+
+
+private function setupConnection(): void {
 	//Logger.hide = false;// true;
 	sparqlEndpoint = Application.application.parameters.sparqlEndpoint;
 	phpSessionID = Application.application.parameters.PHPSESSID;
@@ -107,7 +112,7 @@ private function setup(): void {
 	}
 	
 	
-	init();
+	//init();
 	//Security.allowDomain("http://134.91.35.75");
 	//smallExternalData.send();
 	//myConnection.sendCommand("getElementClasses", getElementClasses_Result);
@@ -127,6 +132,91 @@ public function setStopLayerVisibility(_isVisible:Boolean):void {
 	stopLayer.visible = _isVisible;
 }
 
+
+//--- Controlling Main Menu --------------------------------------------------------
+
+[Embed(source="../assets/img/Menu.png")]
+[Bindable]
+public var btnMenuIcon:Class;
+
+private var menuTimer:Timer;
+private var fastMenuTimer:Timer;
+private var menuVisible:Boolean;
+
+[Bindable]
+private var showMenuButton:Boolean;
+
+private function initMainMenuComponents():void {
+	
+	epvMenu.addEventListener(InitialElementClassEvent.INITIALELEMENTCLASS, initialElementClassHandler);
+	
+	initMenuMoveOn.play();
+	menuTimer = new Timer(2000, 0);
+	menuTimer.addEventListener(TimerEvent.TIMER, onMenuTimeOut);
+	fastMenuTimer = new Timer(500, 0);
+	fastMenuTimer.addEventListener(TimerEvent.TIMER, onFastMenuTimeOut);
+	
+	epvMenu.myConnection = myConnection;
+}
+
+private function onMenuTimeOut(event:TimerEvent):void{
+	menuTimer.stop();
+	hideMenu();
+}
+private function onFastMenuTimeOut(event:TimerEvent):void{
+	fastMenuTimer.stop();
+	hideMenu();
+}
+
+private function setMenuVisible(status:Boolean):void{
+	menuVisible=status;
+	if(status){
+		showMenuButton=false;
+	}else{
+		showMenuButton=true;
+	}
+}
+
+private function showMenu():void{
+	if(!menuVisible){
+		initMenuMoveOn.play();
+		menuTimer.start();
+	}
+}
+
+private function hideMenu(event:MouseEvent=null):void{
+	if(menuVisible && (epvMenu.model.currentElementClass != null)){	//if menu is visible and an initial elementClass has been chosen already
+		if(event!=null){
+			if(!initMenuMoveOff.isPlaying || initMenuMoveOn.isPlaying){
+				initMenuMoveOff.play();	
+			}
+		}else{
+			//timer timed out
+			initMenuMoveOff.play();	
+		}
+	}
+}
+
+private function timerAction(action:String,target:String=null):void{
+	switch(action){
+		case 'rollOut':
+			menuTimer.start();
+			break;
+		case 'rollOver':
+			break;
+		case 'mouseMove':
+			break;
+	}
+}
+
+private function initialElementClassHandler(e:InitialElementClassEvent):void {
+	var listItem:ListItem = getListItem(e.initialElementClass,  new Facet("firstFacet_" + e.initialElementClass.id, null), null);
+	
+	listItem.setAsResultSet();	//initially the first listItem is also the resultSet!
+	
+	changeHelp1();
+}
+
 private function changeHelp1(): void {
 	help.text = "INFO: Drag the background to scroll";
 	var t:Timer = new Timer(30000, 1);
@@ -138,9 +228,41 @@ public function onTimerComplete(evt:TimerEvent):void{
 	help.visible = false;
 }
 
-private function settingsClickHandler(event:MouseEvent):void {
-	var pop:ExpertSettings = PopUpManager.createPopUp(this, ExpertSettings) as ExpertSettings;
+private function mouseAction(event:MouseEvent=null):void{
+	if(event.target == 'animatedMenu0'){
+		switch(event.type){
+			case 'rollOut':
+				
+				break;
+			case 'rollOver':
+				menuTimer.start();
+				break;
+			case 'mouseMove':
+				
+				break;
+		}
+	}else{
+		switch(event.type){
+			case 'rollOut':
+				if(!menuTimer.running){
+					fastMenuTimer.start();	
+				}
+				break;
+			case 'rollOver':
+				showMenu();
+				break;
+			case 'mouseMove':
+				menuTimer.stop();
+				break;
+		}
+	}	
 }
+
+//--- Controlling Main Menu end ----------------------------------------------------
+
+
+
+//--- Loading configuration file ---------------------------------------------------
 
 private function preInitHandler(event:Event):void {
 	// load config
@@ -225,3 +347,5 @@ public function getConfig(conf:Object):Config {
 override public function set initialized(value:Boolean):void{
 	// don't do anything, so we wait until the xml loads
 }
+
+//--- Loading configuration file end -----------------------------------------------

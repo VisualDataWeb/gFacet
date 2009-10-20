@@ -12,16 +12,17 @@ You should have received a copy of the GNU General Public License along with thi
 	
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
 				xmlns:fc="com.adobe.flex.extras.controls.springgraph.*"
+				xmlns:mainMenu="mainMenu.*"
 				
 				layout="absolute"  
 				fontFamily="Verdana" 
 				fontSize="9"
 				preinitialize="preInitHandler(event)"
-				creationComplete="setup()">
+				creationComplete="init()">
 	
 	<mx:Script source="Source.as"/>
 	<mx:Script source="graphElements/GraphController.as"/>
-	<mx:Script source="mainMenu/MainMenuController.as"/>
+	<!--mx:Script source="mainMenu/MainMenuController.as"/-->
 	<mx:Style source="../assets/css/styles.css"/>
 	
 	<mx:Sequence id="initMenuMoveOn" target="{epvMenu}" effectEnd="setMenuVisible(true)">
@@ -37,7 +38,7 @@ You should have received a copy of the GNU General Public License along with thi
 		<mx:SetPropertyAction name="visible" value="false" />
 	</mx:Sequence>
 	
-	<mx:Text x="30" y="10" id="help" text="TEST" fontSize="12" color="#ff0000"/>
+	<mx:Text x="30" y="10" id="help" text="test" fontSize="12" color="#ff0000" visible="true" />
 	
 	<fc:SpringGraph id="sGraph" backgroundColor="#ffffff" height="100%" width="100%" left="0" right="0" top="0" bottom="0" viewFactory="{new graphElements.ViewFactory()}" edgeRenderer="{new graphElements.DirectedEdge()}" dataProvider="{graph}"
 			repulsionFactor="0.5">
@@ -51,11 +52,20 @@ You should have received a copy of the GNU General Public License along with thi
 			</fc:addItemEffect>
 	</fc:SpringGraph>
 	
+	<mx:Panel headerHeight="0" visible="false" id="stopLayer" height="100%" width="100%"
+		backgroundAlpha="0.5" backgroundColor="#ffffff" click="event.stopPropagation()" mouseDown="event.stopPropagation()" />
+	
 	<mx:Button x="-16" y="10" visible="{showMenuButton}" 
 		width="43" height="49" id="btnShowMenu" icon="{btnMenuIcon}"
 		rollOver="mouseAction(event)" />
-		
-	<mx:Canvas id="epvMenu" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+	
+	<mainMenu:MainMenu id="epvMenu"
+				width="0" height="42.5" backgroundColor="#F8f8f8" 
+				cornerRadius="7" borderStyle="solid" x="5" y="5"
+				mouseMove="mouseAction(event)"
+				rollOut="mouseAction(event)"/>
+				
+	<!-- <mx:Canvas id="epvMenu" horizontalScrollPolicy="off" verticalScrollPolicy="off"
 				    mouseMove="mouseAction(event)"
 				    rollOut="mouseAction(event)"
 					width="0" height="42.5" backgroundColor="#F8f8f8" 
@@ -65,8 +75,8 @@ You should have received a copy of the GNU General Public License along with thi
 			<mx:Label width="250" text="Search for classes and add them to the graph."/>
 			<mx:HBox width="250">
 				<mx:FormItem label="Search:" defaultButton="{myOk}" direction="horizontal"  >
-					<mx:TextInput id="textInput" text="german football" width="156" /> <!-- german football -->
-					<!--<comp:AutoComplete id="textInput" width="150" dataProvider="{elementClasses}" labelField="label" change="{myConnection.sendCommand('getElementClasses', getElementClasses_Result, [textInput.typedText]);}" />	-->
+					<mx:TextInput id="textInput" text="german football" width="156" /> 
+					
 				</mx:FormItem>
 				<mx:Button id="myOk" label="ok" click="{getElementClasses(textInput.text);}" styleName="myButtonStyle3" />
 			</mx:HBox>
@@ -75,7 +85,6 @@ You should have received a copy of the GNU General Public License along with thi
 				<mx:DataGrid id="classesDG" width="250" height="200" dataProvider="{elementClasses}" enabled="{(elementClasses.length > 0)}" headerStyleName="myButtonStyle2" styleName="myButtonStyle3">
 					<mx:columns>
 						<mx:DataGridColumn dataField="label" headerText="Found classes" showDataTips="true" dataTipField="id"/>
-						<!--<mx:DataGridColumn dataField="numberOfObjectInstances" headerText="#instances" width="70" />-->
 					</mx:columns>
 				</mx:DataGrid>
 				
@@ -90,10 +99,7 @@ You should have received a copy of the GNU General Public License along with thi
 				<mx:Button id="myAdd" label="add selected" enabled="{(classesDG.selectedItem != null)}" click="{setInitialElementClass(classesDG.selectedItem as ElementClass)}" styleName="myButtonStyle3" />
 			</mx:HBox>
 		</mx:Form>
-	</mx:Canvas>
+	</mx:Canvas> -->
 	
-	<mx:Panel headerHeight="0" visible="false" id="stopLayer" height="100%" width="100%" backgroundAlpha="0.5" backgroundColor="#ffffff" click="event.stopPropagation()" mouseDown="event.stopPropagation()">
-		
-	</mx:Panel>
 	
 </mx:Application>
