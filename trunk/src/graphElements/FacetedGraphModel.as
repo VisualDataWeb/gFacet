@@ -10,6 +10,7 @@
 package graphElements 
 {
 	import connection.IConnection;
+	import mx.collections.ArrayCollection;
 	/**
 	 * ...
 	 * @author Timo Stegemann
@@ -26,6 +27,12 @@ package graphElements
 		
 		public function get connection():IConnection {
 			return _connection;
+		}
+		
+		private var _facets:ArrayCollection = new ArrayCollection();
+		
+		public function get facets():ArrayCollection {
+			return _facets;
 		}
 		
 	}

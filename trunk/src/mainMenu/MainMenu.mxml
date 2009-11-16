@@ -29,12 +29,16 @@ You should have received a copy of the GNU General Public License along with thi
 			</mx:HBox>
 			<mx:Spacer height="2" />
 			<mx:FormItem defaultButton="{myAdd}" verticalGap="0">
-				<mx:DataGrid id="classesDG" width="250" height="200" dataProvider="{model.elementClasses}" enabled="{(model.elementClasses.length > 0)}" headerStyleName="myButtonStyle2" styleName="myButtonStyle3">
+				<mx:DataGrid id="classesDG" width="250" height="200" dataProvider="{model.elementClasses}"
+						doubleClickEnabled="true" itemDoubleClick="{setInitialElementClass(classesDG.selectedItem as ElementClass)}"
+						enabled="{(model.elementClasses.length > 0)}" headerStyleName="myButtonStyle2"
+						styleName="myButtonStyle3" >
 					<mx:columns>
 						<mx:DataGridColumn dataField="label" headerText="Found classes" showDataTips="true" dataTipField="id"/>
 					</mx:columns>
 				</mx:DataGrid>
 				
+				<!-- Was macht eigentlich conceptNav? -->
 				<mx:ToggleButtonBar id="conceptNav" itemClick="navigateConcepts(event)" width="250" height="18" dataProvider="{conceptNavData}" buttonStyleName="myToggleButtonStyle"></mx:ToggleButtonBar>
 			
 			</mx:FormItem>

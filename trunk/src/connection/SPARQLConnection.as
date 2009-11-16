@@ -26,12 +26,15 @@ package connection {
 		public var prefixes:String = "";
 		
 		public function SPARQLConnection(_host:String = "", _basicGraph:String = "") {
-			Security.allowDomain("http://dbpedia.org");
 			this.host = _host;
 			this.basicGraph = _basicGraph;
 		}
 		
 		public function close():void{
+			
+		}
+		
+		public function reset():void {
 			
 		}
 		
@@ -70,7 +73,11 @@ package connection {
 		
 		private var contentType:String = "application/sparql-results+json";
 		
-		public function executeSparqlQuery(sources:ArrayCollection, sparqlQueryString:String, resultHandler:Function, format:String = "XML", useDefaultGraphURI:Boolean = true, errorHandler:Function = null, parsingInformations:Object = null):SPARQLService {
+		public function executeSparqlQuery(sparqlQueryString:String, sources:ArrayCollection, resultHandler:Function,
+				errorHandler:Function = null, parsingInformations:Object = null, format:String = "XML",
+				useDefaultGraphURI:Boolean = true):SPARQLService {
+			
+			
 			//Alert.show(sparqlQueryString);
 			
 			if (resultHandler == null) {
@@ -103,6 +110,7 @@ package connection {
 			var params:Dictionary = new Dictionary();
 			if (useDefaultGraphURI && config.defaultGraphURI != null && config.defaultGraphURI != "") {
 				params["default-graph-uri"] = config.defaultGraphURI;
+				params["m"] = config.defaultGraphURI;
 			}
 			
 			if (phpSessionID != null && phpSessionID != "") {

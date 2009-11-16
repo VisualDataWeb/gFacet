@@ -45,13 +45,13 @@ package connection
 				
 				//query = createCompleteOutdegQuery(_input, 20);
 				query = createCompleteIndegQuery(_input, 20);
-				sparqlConnection.executeSparqlQuery(inputArrayCollection, query, lookUp_Count_Result);
+				sparqlConnection.executeSparqlQuery(query, inputArrayCollection, lookUp_Count_Result);
 				
 				
 			}else {
 				query = createStandardREGEXQuery(_input, 20);
 				//query = createCompleteREGEXIndegQuery(_input, 20);
-				sparqlConnection.executeSparqlQuery(inputArrayCollection, query, lookUp_Result);
+				sparqlConnection.executeSparqlQuery(query, inputArrayCollection, lookUp_Result);
 			}
 			
 		}

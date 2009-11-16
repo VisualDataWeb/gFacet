@@ -34,7 +34,7 @@ You should have received a copy of the GNU General Public License along with thi
 			}
 			
 			public function send():void {
-				sparqlConnection.executeSparqlQuery(null, textInput.text, sparqlResultHandler, "XML");
+				sparqlConnection.executeSparqlQuery(textInput.text, null, sparqlResultHandler);
 			}
 			
 			public function cancel():void {

@@ -21,7 +21,7 @@ package connection
 	{
 		function sendCommand(command:String, onResult:Function, args:Array = null):void;
 		function clone():IConnection;
-		function executeSparqlQuery(sources:ArrayCollection, sparqlQueryString:String, resultHandler:Function, format:String = "XML", useDefaultGraphURI:Boolean = true, errorHandler:Function = null, parsingInformations:Object = null):SPARQLService;
+		function executeSparqlQuery(sparqlQueryString:String, sources:ArrayCollection, resultHandler:Function, errorHandler:Function = null, parsingInformations:Object = null, format:String = "XML", useDefaultGraphURI:Boolean = true):SPARQLService;
 		function get config():IConfig;
 		function set config(value:IConfig):void;
 	}

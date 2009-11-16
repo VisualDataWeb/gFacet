@@ -180,9 +180,10 @@ package connection.config
 			return true;
 		}
 		
+		// TODO: clone ArrayCollections
 		public function clone():IConfig {
 			return new Config(new String(name), new String(description), new String(endpointURI), new String(defaultGraphURI), new Boolean(isVirtuoso),
-				new ArrayCollection(ignoredProperties.toArray()), new Boolean(useProxy), new ArrayCollection(autocompleteURIs.toArray()), lookUp);
+				ignoredProperties, new Boolean(useProxy), autocompleteURIs, lookUp);
 		}
 		
 		override public function toString():String {

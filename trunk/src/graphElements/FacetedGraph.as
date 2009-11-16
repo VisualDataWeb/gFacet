@@ -10,6 +10,8 @@
 package graphElements 
 {
 	import connection.IConnection;
+	import mx.collections.ArrayCollection;
+	
 	/**
 	 * Arbeitsbereich kann mehrere Graphen anzeigen.
 	 * Graph muss wissen aus welchem Endpoint seine Daten stammen, um weitere nachladen zu können.
@@ -25,7 +27,10 @@ package graphElements
 		}
 		
 		private var _model:FacetedGraphModel;
-		private var _controller:Object;
+		
+		public function get facets():ArrayCollection {
+			return _model.facets;
+		}
 		
 	}
 
