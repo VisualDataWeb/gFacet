@@ -22,8 +22,10 @@ You should have received a copy of the GNU General Public License along with thi
 			import flash.net.FileReference;
 			import flash.utils.ByteArray;
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.controls.List;
 			import mx.core.Application;
+			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import popup.ConfigSelectionEvent;
 			
@@ -43,6 +45,7 @@ You should have received a copy of the GNU General Public License along with thi
 				PopUpManager.centerPopUp(this);
 				
 				configList.dataProvider = ConnectionModel.getInstance().sparqlConfigs;
+				trace("endpoint", (ConnectionModel.getInstance().sparqlConfigs as ArrayCollection).contains(ConnectionModel.getInstance().sparqlConfig));
 				configList.selectedItem = ConnectionModel.getInstance().sparqlConfig;
 				setSelectedSPARQL();
 				callLater(configList.scrollToIndex, [configList.selectedIndex]);
@@ -56,16 +59,40 @@ You should have received a copy of the GNU General Public License along with thi
 			
 			public function apply():void {
 				
-				dispatchEvent(new ConfigSelectionEvent(configList.selectedItem as IConfig));
+				if (isGraphEmpty()) {
+					applyImmediatly();
+				}else if (ConnectionModel.getInstance().sparqlConfig != configList.selectedItem as IConfig) {
+					Alert.show("You changed the SPARQL endpoint. Confirming these changes will remove the former graph.", "Confirm", Alert.OK + Alert.CANCEL, null, alertHandler, null, Alert.CANCEL);
+				}else {
+					cancel();
+				}
+				
+			}
+			
+			protected function isGraphEmpty():Boolean {
+				
+				
+				return false;
+				
+			}
+			
+			public function applyImmediatly():void {
+				dispatchEvent(new ConfigSelectionEvent(configList.selectedItem as IConfig, true));
 				
 				ConnectionModel.getInstance().sparqlConfig = configList.selectedItem as IConfig;
 				
+				cancel();
+			}
+			
+			protected function alertHandler(e:CloseEvent):void {
+				if (e.detail == Alert.OK) {
+					applyImmediatly();
+				}
 			}
 			
 			public function ok():void {
 				
 				apply();
-				cancel();
 			}
 			
 			public function cancel():void {
@@ -285,7 +312,7 @@ You should have received a copy of the GNU General Public License along with thi
 				<mx:Label id="selectedSPARQL" width="{configBox.width - 20 - sel.width}" truncateToFit="true" fontWeight="bold" fontSize="12" />
 			</mx:HBox>
 			
-			<mx:List id="configList" width="100%" height="300" itemClick="setSelectedSPARQL();" rowCount="1"
+			<mx:List id="configList" width="100%" height="300" itemClick="setSelectedSPARQL();" rowCount="6"
 				itemRenderer="popup.EndpointListRenderer" variableRowHeight="true" alternatingItemColors="[0xFFFFFF, 0xEFF1F2]" />
 
 		</mx:VBox>

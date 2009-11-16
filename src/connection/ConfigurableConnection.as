@@ -1,14 +1,6 @@
-﻿/**
- * Copyright (C) 2009 Philipp Heim and Timo Stegemann (email to: heim.philipp@googlemail.com)
- * 
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
- */ 
-
-package connection {
+﻿package connection 
+{
+	import connection.DirectConnection;
 	import extenders.HeaderFactory;
 	import graphElements.Chain;
 	import graphElements.Element;
@@ -30,37 +22,34 @@ package connection {
 	import mx.rpc.http.HTTPService;
 	import mx.rpc.xml.SimpleXMLEncoder;
 	
-	//import mx.core.Application;
-	
-	public class MirroringConnection extends DirectConnection{
-		protected var elementLists:HashMap = new HashMap();	//HashMap of Hashmaps (lists of elements) for each facet
-		protected var relationLists:HashMap = new HashMap();	//HashMap of Hashmaps (lists of all the relations between elements from each facet to elements from the incoming facet)
-		protected var tempNewFacet:Facet;
-		
+	/**
+	 * ...
+	 * @author Timo Stegemann
+	 */
+	public class ConfigurableConnection extends MirroringConnection
+	{		
 		private var returnChains:Array = new Array();
 		
-		public function MirroringConnection(_host:String, _basicGraph:String = "", _phpSessionId:String = "") {
+		public function ConfigurableConnection(_host:String = "", _basicGraph:String = "", _phpSessionId:String = "") {
 			super(_host, _basicGraph, _phpSessionId);
-			trace("--- init mirroring connection");
+			trace("--- init configuarable connection");
 		}
 		
 		override public function reset():void {
 			super.reset();
 			
-			elementLists = new HashMap();
-			offset = 0;
-			relationLists = new HashMap();
+			fastEC = false;
+			fastPT = false;
 			returnChains = new Array();
-			tempNewFacet = null;
+			tempConcept = null;
+			tempEClassesFacet = null;
+			tempElementClass = null;
 		}
 		
 		override public function sendCommand(_command:String, _onResult:Function, _args:Array = null):void {
 			trace("sendCommand" + _command);
 			this.addCurrentQuery();
 			
-			//Logger.hide = false;
-			
-			//onResult = _onResult;
 			switch(_command) {
 				case "getDistinctPropertyTypes":
 				
@@ -121,142 +110,12 @@ package connection {
 			}
 		}
 		
-		
-		
-		/*override public function getElementClasses(_concept:String = null, _facet:Facet = null):void {
-			var lookUpHost:String = "http://lookup.dbpedia.org/api/search.asmx/KeywordSearch";
-			var myHttpservice:HTTPService = new HTTPService(lookUpHost);
-			myHttpservice.url = lookUpHost;
-			myHttpservice.method = "GET";
-			myHttpservice.resultFormat = "xml";
-			
-			myHttpservice.addEventListener(ResultEvent.RESULT, getElementClasses_Result);
-			myHttpservice.addEventListener(FaultEvent.FAULT, getElementClasses_Fault);
-			
-			var params:Object = new Object();	//QueryString=string&QueryClass=string&MaxHits=string
-			params.QueryString = _concept;	//_concept = prefix
-			params.QueryClass = "";	//??
-			params.MaxHits = "";
-			//super.addEventListener(ResultEvent.RESULT, responseListener);
-			
-			myHttpservice.cancel();
-			myHttpservice.send(params);
-			
-			/*var pattern:RegExp;
-			pattern = / /g;
-			//dummy : erase if finished
-			//_concept = "german musicians";
-			_concept = _concept.replace(pattern, " and ");
-			*/
-			//FlashConnect.trace("called method getElementClasses");
-			/*var aQuery:SPARQLQuery = new SPARQLQuery(this.host);
-			aQuery.method = this.method;
-			aQuery.resultFormat = this.resultFormat;
-			aQuery.defaultGraphURI = this.basicGraph;
-			aQuery.query = this.prefixes +
-			'SELECT DISTINCT ?category ?label ' +
-			'COUNT(?subject) AS ?numOfInstances  ' + 
-			'WHERE {  ?subject skos:subject ?category .  ' + 
-			         '?category rdfs:label ?label .  ' +
-					 '?label bif:contains "' + _concept + '" .  ' +
-					 'FILTER (lang(?label) = "en") ' +
-			'} '; //ORDERED BY ' + LIMIT 20';
-			
-			if (_facet.descending)
-				aQuery.query += 'ORDER BY DESC(?' + _facet.orderedBy.id + ') ';
-			else
-				aQuery.query += 'ORDER BY ASC(?' + _facet.orderedBy.id + ') ';
-			
-			aQuery.query += 'LIMIT ' + _facet.limit + ' OFFSET ' + _facet.offset;
-			aQuery.phpSessionId = this.phpSessionId;
-			aQuery.addEventListener(ResultEvent.RESULT, getElementClasses_Result);
-			aQuery.addEventListener(FaultEvent.FAULT, getElementClasses_Fault);
-			aQuery.execute();*/
-						
-			//return null;
-		//}
-		
-		/*override protected function getElementClasses_Result(e:ResultEvent):void{
-			this.removeCurrentQuery();
-			FlashConnect.trace("called method getElementClasses_Result " + e.result);
-			
-			var resultXML:XML = new XML(e.result);// objectToXML(e.result);// myHttpservice.lastResult as XML;
-			var results:XMLList = resultXML.children();
-			
-			//FlashConnect.trace("lenght: "+resultXML.elements("Result").length());
-			
-			var returnArray:Array = new Array();
-			var elemClass:ElementClass;
-			//FlashConnect.trace("test0");
-			for each(var item:XML in results) {
-				var categories:XMLList = item.children()[5].children();
-				
-				for each(var item2:XML in categories) {
-					//FlashConnect.trace("test2"+item2);
-					elemClass = new ElementClass(item2.children()[1], item2.children()[0]);	//URI and Label
-					//elemClass.numberOfObjectInstances = 10;
-					returnArray.push(elemClass);
-				}
-			}
-			onResultGetElementClasses(returnArray);		
-		}*/
-		
-		
-		//----------------- START: ADD SELECTION --------------------------
-		
 		/**
 		 * 
 		 * @param	_elementId	the id of the resently selected element
 		 * @param	_facet		the facet where the selection happened
 		 */
-		/*public function addSelection(_elementId:String, _facet:Facet):void {
-			FlashConnect.trace("in addSelection! "+_elementId+" , "+_facet.id);
-			//FlashConnect.trace(" _facet.out: " + _facet.outgoingFacets.length + " in: " + _facet.incomingFacet);
-			
-			var selectedElement:Element = this.getElement(_facet.chainId, _elementId);
-			selectedElement.isSelected = true;
-			selectedElement.isValid = true;
-			
-			var parentFacet:Facet = _facet.getParentFacet();
-			if (parentFacet != null) {	//_facet is not the resultSet!
-				FlashConnect.trace("parent != null");
-				if (this.elementLists.containsKey(parentFacet.chainId)) {
-					this.setIsValid(this.elementLists.find(parentFacet.chainId), false);	//initially set all invalid!
-				}
-				
-				var relations:HashMap;
-				if (parentFacet.id == _facet.incomingFacet.id) {	//if it is the incomingFacet
-					if (this.relationLists.containsKey(_facet.chainId)) {
-						relations = this.relationLists.find(_facet.chainId);	//we have to take the relations from the childFacet!
-					}else {
-						relations = new HashMap();
-						this.relationLists.insert(_facet.chainId, relations);
-					}
-				}else {
-					if (this.relationLists.containsKey(parentFacet.chainId)) {
-						relations = this.relationLists.find(parentFacet.chainId);	//we have to take the relations from the parentFacet!
-					}else {
-						relations = new HashMap();
-						this.relationLists.insert(parentFacet.chainId, relations);
-					}
-				}
-				
-				this.recursiveFiltering(_facet);
-				
-				
-			}else {	//there is no parent!
-				//stop filtering!
-				this.setIsAvailable(this.elementLists.find(_facet.chainId) , false);
-			}
-			this.propagate(app().getResultSetFacet());	//should be the root (resultSet)!
-		}*/
-		
-		/**
-		 * 
-		 * @param	_elementId	the id of the resently selected element
-		 * @param	_facet		the facet where the selection happened
-		 */
-		public function addSelectionWithAnd(_elementId:String, _facet:Facet):void {
+		override public function addSelectionWithAnd(_elementId:String, _facet:Facet):void {
 			FlashConnect.trace("in addSelectionWithAnd! "+_elementId+" , "+_facet.id);
 			//FlashConnect.trace(" _facet.out: " + _facet.outgoingFacets.length + " in: " + _facet.incomingFacet);
 			
@@ -363,7 +222,7 @@ package connection {
 			return false;
 		}
 		
-		protected function setIsValid(_list:HashMap, _setValid:Boolean = false):void {
+		override protected function setIsValid(_list:HashMap, _setValid:Boolean = false):void {
 			FlashConnect.trace("setValidity "+_list.size+", "+_setValid);
 			var iter:Iterator = _list.getIterator();
 			while (iter.hasNext()) {
@@ -373,7 +232,7 @@ package connection {
 		
 		
 		//braucht man die Funktion noch?
-		protected function setIsAvailable(_list:HashMap, _setAvailable:Boolean = false):void {
+		override protected function setIsAvailable(_list:HashMap, _setAvailable:Boolean = false):void {
 			if (_list != null) {
 				FlashConnect.trace("setAllAvailable "+_list.size+", "+_setAvailable);
 				var iter:Iterator = _list.getIterator();
@@ -383,7 +242,7 @@ package connection {
 			}
 		}
 		
-		protected function setIsActive(_list:HashMap, _setActive:Boolean = false):void {
+		override protected function setIsActive(_list:HashMap, _setActive:Boolean = false):void {
 			if (_list != null) {
 				FlashConnect.trace("setAllActive "+_list.size+", "+_setActive);
 				var iter:Iterator = _list.getIterator();
@@ -440,7 +299,7 @@ package connection {
 		 * @param	_elementId	the id of the resently deselected element
 		 * @param	_facet		the facet this happened
 		 */
-		public function removeSelection(_elementId:String, _facet:Facet):void {
+		override public function removeSelection(_elementId:String, _facet:Facet):void {
 			FlashConnect.trace("in removeSelection! "+_elementId);
 			
 			var deselectedElement:Element = this.getElement(_facet.chainId, _elementId);
@@ -479,7 +338,7 @@ package connection {
 		
 		//----------------- END: REMOVE SELECTION --------------------------
 		//----------------- START: ADD FACET --------------------------
-		protected function addFacet(_newFacet:Facet, _offset:int = 0):void {
+		override protected function addFacet(_newFacet:Facet, _offset:int = 0):void {
 			trace("addFacet "+_newFacet.id);
 			this.tempNewFacet = _newFacet;
 			//first we have to get all the elements of the choosen elementClass! 
@@ -510,12 +369,11 @@ package connection {
 			this.executeQuery(query, this.addFacet_Result);	
 		}
 		
-		protected var offset:int = 0;
 		/**
 		 * saves all the new elements and all the new relations to the parentElements
 		 * @param	e
 		 */
-		public function addFacet_Result(e:ResultEvent):void {
+		override public function addFacet_Result(e:ResultEvent):void {
 			trace("addFacet_Result");
 			var parentFacet:Facet = this.tempNewFacet.incomingFacet;
 			var parentElements:HashMap = new HashMap();
@@ -528,7 +386,7 @@ package connection {
 			var arrResult:Array = aSPARQLParser.getResults;
 			
 			if (arrResult.length < 1) {
-				trace("no result in addFacet!");
+				FlashConnect.trace("no result in addFacet!");
 				//onResultGetFacetedChains(new Array(new Chain(this.rootFacet.chainId,null,new Array(),0)));
 			}else {
 				var count:int = arrResult.length;
@@ -695,7 +553,7 @@ package connection {
 		
 		//private var tempTempNewFacetCId:String;	//funktioniert nicht für mehrere facetten gleichzeitig!!!!! ändern!
 		
-		public function getNotConnectedElements_Result(e:ResultEvent):void {
+		override public function getNotConnectedElements_Result(e:ResultEvent):void {
 			var sq:SPARQLQuery = e.target as SPARQLQuery;
 			
 			if (sq.obj != null) {
@@ -793,7 +651,7 @@ package connection {
 			//this.generateReturnChains();
 		}
 		
-		public function recursiveSetRS(_parent:Facet):void {
+		override public function recursiveSetRS(_parent:Facet):void {
 			var childFacets:Array = _parent.getChildFacets();
 			for each(var f:Facet in childFacets) {
 				this.setIsActive(this.elementLists.find(f.chainId), false);	//set initial all active=false
@@ -915,73 +773,6 @@ package connection {
 			this.generateReturnChains();
 		}
 		
-		/*private function recursivePropagation(_parentFacet:Facet, _childFacet:Facet):void {
-			FlashConnect.trace("recursivePropagation, _childF: " + _childFacet.id);
-			if (_parentFacet != null) {	//if not the initial loop
-				
-				var parentChainId:String = _parentFacet.chainId;
-				//reset _childFacet!
-				var childChainId:String = _childFacet.chainId;
-				var childElements:HashMap = this.elementLists.find(childChainId);
-				this.setIsAvailable(childElements, false);
-				
-				//hier stimmt was nicht mit der reihenfolge!!?? parent, child ??
-				
-				//TODO availables berechnen!
-				var relations:HashMap;
-				if (_childFacet.incomingFacet.id == _parentFacet.id) {	//if incoming is parent!
-					relations = this.relationLists.find(childChainId);
-				}else {
-					relations = this.relationLists.find(parentChainId);
-				}
-				var parentElements:HashMap = this.elementLists.find(parentChainId);
-				var iter2:Iterator = parentElements.getIterator();
-				//FlashConnect.trace("test1, pElements: "+parentElements.size);
-				while (iter2.hasNext()) {
-					//FlashConnect.trace("test2");
-					var eP:Element = iter2.next() as Element;
-					//FlashConnect.trace("eP "+eP.id);
-					if (eP.isValid || eP.isAvailable) {	//for all the valid or available elements in the parentFacet
-						//FlashConnect.trace("test3");
-						if (relations.containsKey(eP.id)) {
-							//FlashConnect.trace("test4");
-							var tempRels:HashMap = relations.find(eP.id);
-							var iter3:Iterator = tempRels.getIterator();
-							while (iter3.hasNext()) {	//find all related elements in the childFacet and set them valid!
-								var e:Element = iter3.next();
-								//FlashConnect.trace("set available: " + e.id);
-								//e.isValid = true;
-								e.isAvailable = true;
-							}
-						}
-						
-					}
-				}
-			}else {
-				FlashConnect.trace("parentFacet == null");
-				var valids:Array = this.getAllValids(_childFacet);
-				//FlashConnect.trace("ttest");
-				if (valids.length > 0) {	//TODO
-					//FlashConnect.trace("ttest2");
-					this.setIsAvailable(this.elementLists.find(_childFacet.chainId), false);
-				}else {
-					this.setIsAvailable(this.elementLists.find(_childFacet.chainId), true);
-				}
-			}
-			//FlashConnect.trace(" facet.out: " + _childFacet.outgoingFacets.length + " in: " + _childFacet.incomingFacet);
-			
-			var facets:Array = _childFacet.outgoingFacets.concat();	//just to make a copy!
-			if (_childFacet.incomingFacet != null) facets.push(_childFacet.incomingFacet);
-			for each(var f:Facet in facets) {
-				if (f == null) {
-					FlashConnect.trace("f is null!!");
-				}
-				if ((_parentFacet == null) || (f.id != _parentFacet.id)) {	//if it is not the parent! or null (for the resultSet)
-					this.recursivePropagation(_childFacet, f);	//the old childFacet is now the parent!
-				}
-			}
-		}*/
-		
 		private function recursivePropagationWithAnd(_parentFacet:Facet, _childFacet:Facet):void {
 			FlashConnect.trace("recursivePropagationWithAnd, _childF: " + _childFacet.id);
 			if (_parentFacet != null) {	//if not the initial loop
@@ -1073,7 +864,7 @@ package connection {
 		/**
 		 * generates the chains each having 10 elements in a certain order that will be returned to the interface
 		 */
-		protected function generateReturnChains(_facet:Facet = null):void {
+		override protected function generateReturnChains(_facet:Facet = null):void {
 			//this.removeCurrentQuery();
 			this.returnChains = new Array();	//reset!
 			trace("generateReturnChains! ");
@@ -1157,7 +948,7 @@ package connection {
 			return new Chain(_chainId, null, ar2, ar1.length);
 		}
 		
-		public function myCompareFunc(itemA:Element, itemB:Element):int {
+		override public function myCompareFunc(itemA:Element, itemB:Element):int {
 			if ((itemA.isSelected) && (!itemB.isSelected)) {
 				return -1;	//A before B
 			}else if ((itemB.isSelected) && (!itemA.isSelected)) {
@@ -1171,7 +962,7 @@ package connection {
 			}
 		}
 		
-		protected function getElement(_chainId:String, _eId:String):Element {
+		override protected function getElement(_chainId:String, _eId:String):Element {
 			if(this.elementLists.containsKey(_chainId)) {
 				var elements:HashMap = this.elementLists.find(_chainId);
 				if (elements.containsKey(_eId)) {
@@ -1181,28 +972,109 @@ package connection {
 			return null;	//if the element does not exist for the delivered facet
 		}
 		
-		protected function executeQuery(_query:String, _returnF:Function, _object:Object = null):void {
-			//this.addCurrentQuery();
-			var _aQuery:SPARQLQuery = new SPARQLQuery(this.host);
-			_aQuery.method = this.method;
-			_aQuery.resultFormat = this.resultFormat;
-			_aQuery.defaultGraphURI = this.basicGraph;
-			if (_object != null) {
-				_aQuery.obj = _object;
+		private var tempElementClass:ElementClass;
+		private var fastPT:Boolean = false;
+		//problem : ?numOfInstances only works correctly for first facet. because in the beginning display all the intances (no filtering).
+		//		    All the child facet is filtered regarding the instances of the parent facet, 
+		//          but ?numOfInstances gives value as the facet is not filtered.
+		override public function getDistinctPropertyTypes(_elementClass:ElementClass = null):void {
+			
+			trace("called method getDistinctPropertyTypes");
+		    tempElementClass = _elementClass;
+
+			var strQuery:String = "SELECT DISTINCT ?type ?class ?labelOfType ?labelOfClass COUNT(DISTINCT ?o) AS ?numOfInstances" +
+				  " WHERE { " +
+				  " ?s skos:subject <" + _elementClass.id + "> ." +
+				  " ?s ?type ?o ." +
+				  " ?o skos:subject ?class ." +
+				  " ?o rdfs:label ?oLabel ." +
+				  " ?type rdfs:label ?labelOfType ." +
+				  " ?class rdfs:label ?labelOfClass " +
+				  //'FILTER (lang(?labelOfClass) = "en" && lang(?labelOfType) = "en")' +
+				  'FILTER (lang(?labelOfClass) = "en")' +
+				  'FILTER (lang(?oLabel) = "en")' +
+				  "} ORDER BY DESC(?numOfInstances) ?type ?class LIMIT 40";
+			
+				  
+			//fast
+			var strQuery2:String = "SELECT DISTINCT ?type ?class ?labelOfType ?labelOfClass " +
+				  " WHERE { " +
+				  " ?s skos:subject <" + _elementClass.id + "> ." +
+				  " ?s ?type ?o ." +
+				  " ?o skos:subject ?class ." +
+				  " ?o rdfs:label ?oLabel ." +
+				  " ?type rdfs:label ?labelOfType ." +
+				  " ?class rdfs:label ?labelOfClass " +
+				  //'FILTER (lang(?labelOfClass) = "en" && lang(?labelOfType) = "en")' +
+				  'FILTER (lang(?labelOfClass) = "en")' +
+				  'FILTER (lang(?oLabel) = "en")' +
+				  "} ";// ORDER BY DESC(?numOfInstances) ?type ?class LIMIT 20";
+				  
+			//=========================
+			
+			if (fastPT) {
+				executeSparqlQuery(prefixes + strQuery2, null, getDistinctPropertyType_Result, getDistinctPropertyType_Fault);
+			}else {
+				executeSparqlQuery(prefixes + strQuery, null, getDistinctPropertyType_Result, getDistinctPropertyType_Fault);
 			}
-			//_aQuery.query = this.prefixes + selectQuery + where;
-			_aQuery.query = this.prefixes + _query;
-			//_aQuery.phpSessionId = this.phpSessionId;
-			_aQuery.addEventListener(ResultEvent.RESULT, _returnF);
-			_aQuery.addEventListener(FaultEvent.FAULT, this.faultReturn);
-			_aQuery.execute();
+			
 		}
 		
-		public function faultReturn(e:FaultEvent):void{
+		private var tempEClassesFacet:Facet = null;
+		private var tempConcept:String = null;
+		private var fastEC:Boolean = false;
+		override public function getElementClasses(_concept:String = null, _facet:Facet = null):void {
+			trace("getElementClasses");
+			tempEClassesFacet = _facet;
+			tempConcept = _concept;
+			var pattern:RegExp;
+			pattern = / /g;
+			_concept = _concept.replace(pattern, " and ");
+			
+			var query:String = "";
+			
+			if (fastEC) {
+				//fast
+				query = this.prefixes + 'SELECT DISTINCT ?category ?label ' + 
+				'WHERE { ?category rdf:type skos:Concept . ' + 
+						 '?category rdfs:label ?label .  ' +
+						 '?label bif:contains "' + _concept + '" .  ' +
+						 'FILTER (lang(?label) = "en") ' +
+				'} ';
+			}else {
+				query = this.prefixes + 'SELECT DISTINCT ?category ?label ' +
+				'COUNT(?o) AS ?numOfInstances  ' + 
+				'WHERE { ?category rdf:type skos:Concept . ' +  
+						 '?o skos:subject ?category . ' +
+						 '?category rdfs:label ?label .  ' +
+						 '?label bif:contains "' + _concept + '" .  ' +
+						 'FILTER (lang(?label) = "en") ' +
+				'} ORDER BY DESC(?numOfInstances) LIMIT 30 ';	
+			}
+			
+			executeSparqlQuery(query, null, getElementClasses_Result, getElementClasses_Fault);
+			
+		}
+		
+		override protected function executeQuery(query:String, result:Function, object:Object = null):void {
+			
+			var sources:ArrayCollection;
+			
+			if (object){
+				sources = new ArrayCollection();
+				sources.addItem(object);
+			} else {
+				sources = null;
+			}
+			executeSparqlQuery(prefixes + query, sources, result, faultReturn);
+		}
+		
+		override public function faultReturn(e:FaultEvent):void{
 			this.removeCurrentQuery();
 			FlashConnect.trace("faultReturn!!! "+e.fault.faultString);
 			//Logger.error("getFacetedChains : ", e.fault.faultString);
 		}
+		
 	}
-	
+
 }

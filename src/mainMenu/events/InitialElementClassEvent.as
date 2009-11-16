@@ -1,5 +1,6 @@
 ﻿package mainMenu.events 
 {
+	import connection.IConnection;
 	import flash.events.Event;
 	import graphElements.ElementClass;
 	
@@ -14,9 +15,13 @@
 		
 		private var iec:ElementClass;
 		
-		public function InitialElementClassEvent(initialElementClass:ElementClass, bubbles:Boolean=false, cancelable:Boolean=false) 
+		private var con:IConnection;
+		
+		public function InitialElementClassEvent(initialElementClass:ElementClass, connection:IConnection = null, bubbles:Boolean=false, cancelable:Boolean=false) 
 		{
 			iec = initialElementClass;
+			
+			con = connection;
 			
 			super(INITIALELEMENTCLASS, bubbles, cancelable);
 			
@@ -26,9 +31,13 @@
 			return iec;
 		}
 		
+		public function get connection():IConnection {
+			return con;
+		}
+		
 		public override function clone():Event 
 		{ 
-			return new InitialElementClassEvent(initialElementClass, bubbles, cancelable);
+			return new InitialElementClassEvent(initialElementClass, connection, bubbles, cancelable);
 		} 
 		
 		public override function toString():String 

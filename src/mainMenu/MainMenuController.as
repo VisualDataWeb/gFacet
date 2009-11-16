@@ -12,6 +12,7 @@ import connection.config.IConfig;
 import connection.IConnection;
 import connection.SPARQLConnection;
 import connection.SPARQLResultEvent;
+import flash.display.DisplayObject;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
@@ -45,6 +46,8 @@ public function init():void {
 	
 }
 
+// This event will never been fired
+[Bindable(event="MainMenuModelChange")]
 public function get model():MainMenuModel {
 	if (_model == null) {
 		_model = new MainMenuModel();
@@ -70,7 +73,7 @@ public function getElementClasses(userInput:String):void {
 	
 	mainMenuForm.enabled = false;
 	
-	myConnection.executeSparqlQuery(new ArrayCollection([userInput]), query, getElementClasses_Result, "XML", true, getElementClasses_Fault);
+	myConnection.executeSparqlQuery(query, new ArrayCollection([userInput]), getElementClasses_Result, getElementClasses_Fault);
 	
 }
 
@@ -80,7 +83,7 @@ private function getElementClasses_Fault(e:FaultEvent):void {
 	mainMenuForm.enabled = true;
 }
 
-private function getElementClasses_Result(e:SPARQLResultEvent):void {
+private function getElementClasses_Result(e:ResultEvent):void {
 	
 	mainMenuForm.enabled = true;
 	
@@ -152,16 +155,17 @@ private function getQuery(userInput:String):String {
 	pattern = / /g;
 	userInput = userInput.replace(pattern, " 'and' ");
 	
-	var prefixes:String = "";
-		//"PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
-		//"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> " +
-		//"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
-		//"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-		//"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
-		//"PREFIX dc: <http://purl.org/dc/elements/1.1/> " +
-		//"PREFIX dbpedia2: <http://dbpedia.org/property/> " +
-		//"PREFIX dbpedia: <http://dbpedia.org/> " +
-		//"PREFIX skos: <http://www.w3.org/2004/02/skos/core#> ";
+	var prefixes:String = "" +
+		"PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
+		"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> " +
+		"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+		"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+		"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
+		"PREFIX dc: <http://purl.org/dc/elements/1.1/> " +
+		"PREFIX dbpedia2: <http://dbpedia.org/property/> " +
+		"PREFIX dbpedia: <http://dbpedia.org/> " +
+		"PREFIX skos: <http://www.w3.org/2004/02/skos/core#> " + 
+		"";
 	
 	query += prefixes;
 	
@@ -176,13 +180,13 @@ private function getQuery(userInput:String):String {
 		"} ORDER BY DESC(?numOfInstances) LIMIT 30 ";
 	}else {
 		query += "SELECT DISTINCT ?category ?label " +
-		"COUNT(?o) AS ?numOfInstances  " + 
+		//"COUNT(?o) AS ?numOfInstances  " + 
 		"WHERE { ?category rdf:type skos:Concept . " +  
 				"?o skos:subject ?category . " +
 				"?category rdfs:label ?label .  " +
-				"FILTER regex(?l, '" + userInput + "', 'i')  . } "; 
+				"FILTER regex(?label, '" + userInput + "', 'i')  . } "; 
 				"FILTER (lang(?label) = 'en') " +
-		"} ORDER BY DESC(?numOfInstances) LIMIT 30 ";
+		"} ORDER BY DESC(?label) LIMIT 30 ";
 	}
 	
 	return query;
@@ -192,17 +196,19 @@ private function setInitialElementClass(_class:ElementClass): void {
 	
 	model.currentElementClass = _class;
 	
-	dispatchEvent(new InitialElementClassEvent(_class));
+	dispatchEvent(new InitialElementClassEvent(_class, model.connection));
 	
 }
 
 private function settingsClickHandler(event:MouseEvent):void {
-	var pop:ExpertSettings = PopUpManager.createPopUp(this, ExpertSettings) as ExpertSettings;
+	var pop:ExpertSettings = PopUpManager.createPopUp(Application.application as DisplayObject, ExpertSettings) as ExpertSettings;
 	pop.addEventListener(ConfigSelectionEvent.CONFIGSELECTION, expertSettingsHandler);
 }
 
 private function expertSettingsHandler(e:ConfigSelectionEvent):void {
+	model.elementClasses.removeAll();
 	model.connection.config = e.selectedConfig;
+	dispatchEvent(e);
 }
 
 private function mouseOverHandler(e:Event):void {

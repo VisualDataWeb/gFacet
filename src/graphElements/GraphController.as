@@ -12,24 +12,32 @@ import com.adobe.flex.extras.controls.springgraph.Item;
 import connection.MirroringConnection;
 import de.polygonal.ds.HashMap;
 import de.polygonal.ds.Iterator;
+import graphElements.GraphModel;
 import graphElements.NoPagingListItem;
 
-public var listItems:HashMap = new HashMap();
-private var resultSetFacet:Facet = null;
+[Bindable(event="GraphModelChange")]
+public function get model():GraphModel {
+	return GraphModel.getInstance();
+}
 
-private var _noPaging:Boolean = true; //flag
+public function get listItems():HashMap {
+	
+	trace("** --- So sollte nicht mehr auf ListItems zugegriffen werden ---");
+	
+	return model.listItems;
+}
 
 public function getFacetedChains(_tempFacet:Facet = null):void {
 	//if (_rootFacet == null) _rootFacet = rootFacet;
-	if ((resultSetFacet == null) && (_tempFacet == null)) {	//the worst case!
+	if ((model.resultSetFacet == null) && (_tempFacet == null)) {	//the worst case!
 		//Logger.error("resultSetFacet is NULL");
 	}else {	
-		if (resultSetFacet == null) {		//the initial case
-			resultSetFacet = _tempFacet;	//is not null!
+		if (model.resultSetFacet == null) {		//the initial case
+			model.resultSetFacet = _tempFacet;	//is not null!
 		}
 		//stopLayer.visible = true;
 		//CursorManager.setBusyCursor();
-		myConnection.sendCommand("getFacetedChains", getFacetedChains_Result, [resultSetFacet]);
+		myConnection.sendCommand("getFacetedChains", getFacetedChains_Result, [model.resultSetFacet]);
 	}
 }
 
@@ -39,15 +47,15 @@ public function getFacetedChains_Result(_chains:Array):void {
 	trace("RETURNED: getFacetedChains " + _chains.length);
 	//FlashConnect.trace("number of elements in first chain: " + _chains[0].elements.length);
 	for each(var c:Chain in _chains) {
-		if (listItems.containsKey(c.id)) {
-			var lItem:ListItem = listItems.find(c.id);
+		if (model.listItems.containsKey(c.id)) {
+			var lItem:ListItem = model.listItems.find(c.id);
 			lItem.setChain(c, triggeredColor, triggeredElement);
 		}else {
 			trace("ERROR: no key: " + c.id);
 		}	
 	}
 	
-	var iter:Iterator = listItems.getIterator();
+	var iter:Iterator = model.listItems.getIterator();
 	while (iter.hasNext()) {
 		var lItem2:ListItem = iter.next();
 		lItem2.checkHighlight(triggeredColor);	//warum nicht innerhalb der setChain methode?? -> weil erst alle veränderungen vorgenommen werden.
@@ -60,9 +68,9 @@ public function getFacetedChains_Result(_chains:Array):void {
 
 public function getListItem(_elementClass:ElementClass, _facet:Facet, _rel:RelationItem=null):ListItem{
 	var key:String = _elementClass.id + _facet.id;
-	if (!listItems.containsKey(key)) {
+	if (!model.listItems.containsKey(key)) {
 		var newListItem:ListItem;
-		if (_noPaging) {
+		if (model._noPaging) {
 			newListItem = new NoPagingListItem(key, _elementClass, myConnection, _facet, _rel, getHighlightColor());
 		}else {
 			if (_elementClass.label == "Point") {	//_rel.property.type == "geo:long" || "geo:lat"
@@ -72,28 +80,28 @@ public function getListItem(_elementClass:ElementClass, _facet:Facet, _rel:Relat
 			}
 		}
 		
-		listItems.insert(key, newListItem);
+		model.listItems.insert(key, newListItem);
 		//FlashConnect.trace("listItem inserted, key : " + key);
 		graph.add(newListItem);
 		//setCurrentItem(null);
 		//setCurrentItem(newListItem);
 	}
-	return listItems.find(key);
+	return model.listItems.find(key);
 }
 
 public function setResultSetFacet(_facet:Facet):void {
-	resultSetFacet = _facet;
+	model.resultSetFacet = _facet;
 	
 	//very bad, please change!
 	if (myConnection is MirroringConnection) {
-		myConnection.sendCommand("setResultSet", getFacetedChains_Result, [resultSetFacet]);
+		myConnection.sendCommand("setResultSet", getFacetedChains_Result, [model.resultSetFacet]);
 	}else {
 		getFacetedChains();	//whole update of all the facets and the resultSet!
 	}
 }
 
 public function getResultSetFacet():Facet {
-	return resultSetFacet;
+	return model.resultSetFacet;
 }
 
 
@@ -115,14 +123,14 @@ public function get triggeredElement():Element {
 
 public function removeListItem(_listItem:ListItem):void {
 	var p:Facet = _listItem.facet.getParentFacet();
-	listItems.remove(_listItem.key);
+	model.listItems.remove(_listItem.key);
 	removeItem(_listItem);
 	
 	//FlashConnect.trace("p: " + p);
 	if (p != null) {
 		var key:String = p.chainId;
 		//FlashConnect.trace("key : " + key);
-		var item:Item = listItems.find(key);
+		var item:Item = model.listItems.find(key);
 		//FlashConnect.trace("item " + item.id);
 		//setCurrentItem(item);
 	}else {

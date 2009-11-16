@@ -11,6 +11,7 @@
 import com.adobe.flex.extras.controls.springgraph.Graph;
 import connection.config.Config;
 import connection.config.IConfig;
+import connection.ConfigurableConnection;
 import connection.MirroringConnection_Knoodl;
 import connection.MirroringConnection_SWORE;
 import connection.model.ConnectionModel;
@@ -32,11 +33,13 @@ import mx.managers.PopUpManager;
 import mx.rpc.events.FaultEvent;
 import mx.rpc.events.ResultEvent;
 import mx.rpc.http.HTTPService;
+import popup.ConfigSelectionEvent;
 import popup.ExpertSettings;
 import mx.effects.easing.Elastic;
 
 //FLAG
-private static var connectionType:String = "mirroring"; // "mirroring_knoodl"; // "mirroring"; // "mirroring_swore"; // "mirroring";	//indirect (over PHP) direct or mirroring connection to an SPARQL endpoint
+private static var connectionType:String = "configurable";
+//private static var connectionType:String = "mirroring"; // "mirroring_knoodl"; // "mirroring"; // "mirroring_swore"; // "mirroring";	//indirect (over PHP) direct or mirroring connection to an SPARQL endpoint
 
 [Bindable]
 public var graph:Graph = new Graph();
@@ -105,6 +108,8 @@ private function setupConnection(): void {
 				myConnection = new MirroringConnection_SWORE("http://mms.ontowiki.net/intranet/service/sparql", "http://mms.ontowiki.net/softwiki/MMS_Intranet/"); //"http://mms.ontowiki.net/mms_sandbox/service/sparql", "http://mms.ontowiki.net/softwiki/MMS_Intranet/"); // http://mms.ontowiki.net/service/sparql", "http://mms.ontowiki.net/");// , "http://testdb.softwiki.de");
 			}else if (connectionType == "mirroring_knoodl") {
 				myConnection = new MirroringConnection_Knoodl("http://www.knoodl.com/ui/groups/Tutorial/vocab/Wine/sparql");
+			}else if (connectionType == "configurable") {
+				myConnection = new ConfigurableConnection();
 			}else{
 				//Logger.error("no correct connectionType set!");
 			}
@@ -149,7 +154,7 @@ private var showMenuButton:Boolean;
 private function initMainMenuComponents():void {
 	
 	epvMenu.addEventListener(InitialElementClassEvent.INITIALELEMENTCLASS, initialElementClassHandler);
-	
+	epvMenu.addEventListener(ConfigSelectionEvent.CONFIGSELECTION, expertSettingsHandler);
 	initMenuMoveOn.play();
 	menuTimer = new Timer(2000, 0);
 	menuTimer.addEventListener(TimerEvent.TIMER, onMenuTimeOut);
@@ -157,6 +162,12 @@ private function initMainMenuComponents():void {
 	fastMenuTimer.addEventListener(TimerEvent.TIMER, onFastMenuTimeOut);
 	
 	epvMenu.myConnection = myConnection;
+}
+
+private function expertSettingsHandler(e:ConfigSelectionEvent):void {
+	myConnection.reset();
+	graph.empty();
+	trace("---------------------------------------------------------------- Clear ---------------------------------------------------------");
 }
 
 private function onMenuTimeOut(event:TimerEvent):void{

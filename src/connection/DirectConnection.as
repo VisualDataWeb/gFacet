@@ -42,11 +42,8 @@ package connection {
 	 */
 	 
 	public class DirectConnection extends SPARQLConnection {
-		//public var host:String;
-		//public var basicGraph:String;
-		//public var resultFormat:String;
+		
 		public var method:String;
-		//public var prefixes:String;
 		public var phpSessionId:String;
 		
 		private var singleFacets:Array;
@@ -62,9 +59,6 @@ package connection {
 		
 		private	var aliasFacetObj:Object;
 		private	var realFacetObj:Object;
-		
-		
-		
 		
 		//TODO: make a onresult function locally and differentiate for each command
 		protected var onResultGetDistinctPropertyTypes:Function;
@@ -90,12 +84,27 @@ package connection {
 			"PREFIX dc: <http://purl.org/dc/elements/1.1/> " +
 			"PREFIX dbpedia2: <http://dbpedia.org/property/> " +
 			"PREFIX dbpedia: <http://dbpedia.org/> " +
-			"PREFIX skos: <http://www.w3.org/2004/02/skos/core#> " // +
+			"PREFIX skos: <http://www.w3.org/2004/02/skos/core#> ";
+		}
+		
+		override public function reset():void {
+			super.reset();
 			
-			//+" PREFIX req: <http://ns.softwiki.de/req/> ";
-			//"PREFIX : <http://dbpedia.org/resource/> " +
-			//"PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>" +
-			//"PREFIX geonames: <http://www.geonames.org/ontology#>";*/
+			aliasFacetObj = null;
+			chainsArray = null;
+			fastEC = false;
+			fastPT = false;
+			method = "GET";
+			numCurrentQueries = 0;
+			phpSessionId = null;
+			realFacetObj = null;
+			resultKeys = null;
+			resultSet = null;
+			rootFacet = null;
+			singleFacets = new Array();
+			tempConcept = null;
+			tempEClassesFacet = null;
+			tempElementClass = null;
 		}
 		
 		override public function sendCommand(_command:String, _onResult:Function, _args:Array = null):void {
@@ -209,7 +218,7 @@ package connection {
 				returnArray[0] = "please specify your search";
 				onResultGetElementClasses(returnArray);
 			}else {
-				FlashConnect.trace("fault but we try the faster version");
+				FlashConnect.trace("fault but we try the faster version (getElementClasses_Fault)");
 				fastEC = true;
 				this.getElementClasses(tempConcept, tempEClassesFacet);
 			}
@@ -316,7 +325,7 @@ package connection {
 				this.removeCurrentQuery();
 			}else {
 				//we try it ones more with the fast query method!!
-				FlashConnect.trace("fault but we try the faster version");
+				FlashConnect.trace("fault but we try the faster version (getDistinctPropertyType_Fault)");
 				fastPT = true;
 				this.getDistinctPropertyTypes(tempElementClass);
 			}
