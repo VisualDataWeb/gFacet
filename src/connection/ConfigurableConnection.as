@@ -52,7 +52,7 @@
 			
 			switch(_command) {
 				case "getDistinctPropertyTypes":
-				
+
 					onResultGetDistinctPropertyTypes = _onResult;
 					this.getDistinctPropertyTypes(_args[0]);
 					break;
@@ -979,7 +979,7 @@
 		//          but ?numOfInstances gives value as the facet is not filtered.
 		override public function getDistinctPropertyTypes(_elementClass:ElementClass = null):void {
 			
-			trace("called method getDistinctPropertyTypes");
+			
 		    tempElementClass = _elementClass;
 
 			var strQuery:String = "SELECT DISTINCT ?type ?class ?labelOfType ?labelOfClass COUNT(DISTINCT ?o) AS ?numOfInstances" +
@@ -987,12 +987,12 @@
 				  " ?s skos:subject <" + _elementClass.id + "> ." +
 				  " ?s ?type ?o ." +
 				  " ?o skos:subject ?class ." +
-				  " ?o rdfs:label ?oLabel ." +
+				  //" ?o rdfs:label ?oLabel ." +
 				  " ?type rdfs:label ?labelOfType ." +
 				  " ?class rdfs:label ?labelOfClass " +
 				  //'FILTER (lang(?labelOfClass) = "en" && lang(?labelOfType) = "en")' +
 				  'FILTER (lang(?labelOfClass) = "en")' +
-				  'FILTER (lang(?oLabel) = "en")' +
+				  //'FILTER (lang(?oLabel) = "en")' +
 				  "} ORDER BY DESC(?numOfInstances) ?type ?class LIMIT 40";
 			
 				  
@@ -1002,13 +1002,13 @@
 				  " ?s skos:subject <" + _elementClass.id + "> ." +
 				  " ?s ?type ?o ." +
 				  " ?o skos:subject ?class ." +
-				  " ?o rdfs:label ?oLabel ." +
+				  //" ?o rdfs:label ?oLabel ." +
 				  " ?type rdfs:label ?labelOfType ." +
 				  " ?class rdfs:label ?labelOfClass " +
 				  //'FILTER (lang(?labelOfClass) = "en" && lang(?labelOfType) = "en")' +
 				  'FILTER (lang(?labelOfClass) = "en")' +
-				  'FILTER (lang(?oLabel) = "en")' +
-				  "} ";// ORDER BY DESC(?numOfInstances) ?type ?class LIMIT 20";
+				  //'FILTER (lang(?oLabel) = "en")' +
+				  "} ORDER BY DESC(?labelOfType)"; //?numOfInstances) ?type ?class LIMIT 20";
 				  
 			//=========================
 			
@@ -1018,6 +1018,21 @@
 				executeSparqlQuery(prefixes + strQuery, null, getDistinctPropertyType_Result, getDistinctPropertyType_Fault);
 			}
 			
+		}
+		
+		override protected function getDistinctPropertyType_Fault(e:FaultEvent):void{
+			if (fastPT) {
+				trace("fault!!");
+				fastPT = false;
+				this.removeCurrentQuery();
+			}else {
+				//we try it ones more with the fast query method!!
+				trace("fault but we try the faster version (getDistinctPropertyType_Fault)");
+				fastPT = true;
+				this.getDistinctPropertyTypes(tempElementClass);
+			}
+			//FlashConnect.trace("getDistinctPropertyType_Fault");
+			//Logger.error("getDistinctPropertyType : ", e.fault.faultString);
 		}
 		
 		private var tempEClassesFacet:Facet = null;
