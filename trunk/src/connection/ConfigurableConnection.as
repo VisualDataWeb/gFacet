@@ -981,7 +981,7 @@
 			
 			
 		    tempElementClass = _elementClass;
-
+			//?type ?class 
 			var strQuery:String = "SELECT DISTINCT ?type ?class ?labelOfType ?labelOfClass COUNT(DISTINCT ?o) AS ?numOfInstances" +
 				  " WHERE { " +
 				  " ?s skos:subject <" + _elementClass.id + "> ." +
@@ -991,7 +991,7 @@
 				  " ?type rdfs:label ?labelOfType ." +
 				  " ?class rdfs:label ?labelOfClass " +
 				  //'FILTER (lang(?labelOfClass) = "en" && lang(?labelOfType) = "en")' +
-				  'FILTER (lang(?labelOfClass) = "en")' +
+				  //'FILTER (lang(?labelOfClass) = "en")' +
 				  //'FILTER (lang(?oLabel) = "en")' +
 				  "} ORDER BY DESC(?numOfInstances) ?type ?class LIMIT 40";
 			
@@ -1006,7 +1006,7 @@
 				  " ?type rdfs:label ?labelOfType ." +
 				  " ?class rdfs:label ?labelOfClass " +
 				  //'FILTER (lang(?labelOfClass) = "en" && lang(?labelOfType) = "en")' +
-				  'FILTER (lang(?labelOfClass) = "en")' +
+				  //'FILTER (lang(?labelOfClass) = "en")' +
 				  //'FILTER (lang(?oLabel) = "en")' +
 				  "} ORDER BY DESC(?labelOfType)"; //?numOfInstances) ?type ?class LIMIT 20";
 				  

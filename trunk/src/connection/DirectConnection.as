@@ -10,6 +10,7 @@
 
 package connection {
 	import com.google.maps.wrappers.EventDispatcherWrapper;
+	import de.polygonal.ds.HashMap;
 	//import com.mikenimer.components.debug.ColdFusion.CFTimerDebugObject;
 	//import com.mikenimer.components.debug.ResultEventDebugObject;
 	import flash.events.Event;
@@ -320,12 +321,12 @@ package connection {
 		protected function getDistinctPropertyType_Fault(e:FaultEvent):void
 		{
 			if (fastPT) {
-				FlashConnect.trace("fault!!");
+				trace("fault!!");
 				fastPT = false;
 				this.removeCurrentQuery();
 			}else {
 				//we try it ones more with the fast query method!!
-				FlashConnect.trace("fault but we try the faster version (getDistinctPropertyType_Fault)");
+				trace("fault but we try the faster version (getDistinctPropertyType_Fault)");
 				fastPT = true;
 				this.getDistinctPropertyTypes(tempElementClass);
 			}
@@ -344,30 +345,36 @@ package connection {
 			
 			aSPARQLParser.parse(XML(e.result));
 			
-			var arrResult:Array = aSPARQLParser.getResults;			
+			var arrResult:Array = aSPARQLParser.getResults;	
+			var testIds:Array = new Array();
 			var typesArray:Array = new Array();
 			
 			for each (var item:Object in arrResult)
 			{
 			
+				var _label:String = item["?labelOfType"].getLabel + ":" + item["?labelOfClass"].getLabel; //z.B. hasAge:age	
 				var _id:String = item["?type"].getLabel;
-				var _type:String = item["?type"].getLocalname;  //z.B. hasAge
-				var _value:String;
-				var _class:String = "String";	//default
-				var _labelOfClass:String = "String"; 	//default
-				if (item["?class"] != null) {
-					_class = item["?class"].getLocalname;
-					_labelOfClass = item["?class"].getLabel;
+				if (testIds.indexOf(_label) == -1) {
+					var _type:String = item["?type"].getLocalname;  //z.B. hasAge
+					var _value:String;
+					var _class:String = "String";	//default
+					var _labelOfClass:String = "String"; 	//default
+					if (item["?class"] != null) {
+						_class = item["?class"].getLocalname;
+						_labelOfClass = item["?class"].getLabel;
+					}
+					
+					var _elemClass:ElementClass = new ElementClass(_labelOfClass, _class);
+					if (item["?numOfInstances"] != null) {
+						_elemClass.numberOfObjectInstances = item["?numOfInstances"].getLabel;
+					}
+					testIds.push(_label);
+					typesArray.push(new Property(_id, _type, _value, _label, _elemClass));
 				}
-				
-				var _label:String = item["?type"].getLocalname + ":" + _class; //z.B. hasAge:age			
-				var _elemClass:ElementClass = new ElementClass(_labelOfClass, _class);
-				if (item["?numOfInstances"] != null) {
-					_elemClass.numberOfObjectInstances = item["?numOfInstances"].getLabel;
-				}
-				typesArray.push(new Property(_id, _type, _value, _label, _elemClass));
 				
 			}
+			
+			
 			this.removeCurrentQuery();
 			onResultGetDistinctPropertyTypes(typesArray);
 		}
