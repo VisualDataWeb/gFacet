@@ -172,7 +172,7 @@ private function getQuery(userInput:String):String {
 	if (model.connection.config.isVirtuoso) {
 		query += "SELECT DISTINCT ?category ?label " +
 		"COUNT(?o) AS ?numOfInstances  " + 
-		"WHERE { ?category rdf:type skos:Concept . " +  
+		"WHERE { " + //?category rdf:type skos:Concept . " +  
 				"?o skos:subject ?category . " +
 				"?category rdfs:label ?label .  " +
 				"?label bif:contains \"'" + userInput + "'\" .  " +
@@ -181,7 +181,7 @@ private function getQuery(userInput:String):String {
 	}else {
 		query += "SELECT DISTINCT ?category ?label " +
 		//"COUNT(?o) AS ?numOfInstances  " + 
-		"WHERE { ?category rdf:type skos:Concept . " +  
+		"WHERE { " + //?category rdf:type skos:Concept . " +  
 				"?o skos:subject ?category . " +
 				"?category rdfs:label ?label .  " +
 				"FILTER regex(?label, '" + userInput + "', 'i')  . } "; 
