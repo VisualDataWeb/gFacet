@@ -177,20 +177,20 @@ package connection {
 			if (fastEC) {
 				//fast
 				aQuery.query = this.prefixes + 'SELECT DISTINCT ?category ?label ' + 
-				'WHERE { ?category rdf:type skos:Concept . ' + 
+				'WHERE { ' + 
 						 '?category rdfs:label ?label .  ' +
 						 '?label bif:contains "' + _concept + '" .  ' +
 						 'FILTER (lang(?label) = "en") ' +
-				'} ';
+				'} '; //?category rdf:type skos:Concept . ' + 
 			}else {
 				aQuery.query = this.prefixes + 'SELECT DISTINCT ?category ?label ' +
 				'COUNT(?o) AS ?numOfInstances  ' + 
-				'WHERE { ?category rdf:type skos:Concept . ' +  
+				'WHERE { ' + 
 						 '?o skos:subject ?category . ' +
 						 '?category rdfs:label ?label .  ' +
 						 '?label bif:contains "' + _concept + '" .  ' +
 						 'FILTER (lang(?label) = "en") ' +
-				'} ORDER BY DESC(?numOfInstances) LIMIT 30 ';	
+				'} ORDER BY DESC(?numOfInstances) LIMIT 30 '; // ?category rdf:type skos:Concept . ' +  	
 			}
 			
 			

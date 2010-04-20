@@ -982,22 +982,23 @@
 			
 		    tempElementClass = _elementClass;
 			//?type ?class 
-			var strQuery:String = "SELECT DISTINCT ?type ?class ?labelOfType ?labelOfClass COUNT(DISTINCT ?o) AS ?numOfInstances" +
+			var strQuery:String = "SELECT ?type ?class ?labelOfType ?labelOfClass COUNT(DISTINCT ?o) AS ?numOfInstances" +
 				  " WHERE { " +
 				  " ?s skos:subject <" + _elementClass.id + "> ." +
 				  " ?s ?type ?o ." +
 				  " ?o skos:subject ?class ." +
 				  //" ?o rdfs:label ?oLabel ." +
 				  " ?type rdfs:label ?labelOfType ." +
-				  " ?class rdfs:label ?labelOfClass " +
+				  " ?class rdfs:label ?labelOfClass ." +
 				  //'FILTER (lang(?labelOfClass) = "en" && lang(?labelOfType) = "en")' +
-				  //'FILTER (lang(?labelOfClass) = "en")' +
+				  " FILTER (lang(?labelOfClass) = 'en') " +
 				  //'FILTER (lang(?oLabel) = "en")' +
-				  "} ORDER BY DESC(?numOfInstances) ?type ?class LIMIT 40";
+				  //' FILTER (lang(?labelOfType) = "en") '+
+				  "} ORDER BY DESC(?numOfInstances) LIMIT 40";
 			
 				  
 			//fast
-			var strQuery2:String = "SELECT DISTINCT ?type ?class ?labelOfType ?labelOfClass " +
+			var strQuery2:String = "SELECT ?type ?class ?labelOfType ?labelOfClass " +
 				  " WHERE { " +
 				  " ?s skos:subject <" + _elementClass.id + "> ." +
 				  " ?s ?type ?o ." +
@@ -1006,7 +1007,7 @@
 				  " ?type rdfs:label ?labelOfType ." +
 				  " ?class rdfs:label ?labelOfClass " +
 				  //'FILTER (lang(?labelOfClass) = "en" && lang(?labelOfType) = "en")' +
-				  //'FILTER (lang(?labelOfClass) = "en")' +
+				  //' FILTER (lang(?labelOfClass) = "en")' +
 				  //'FILTER (lang(?oLabel) = "en")' +
 				  "} ORDER BY DESC(?labelOfType)"; //?numOfInstances) ?type ?class LIMIT 20";
 				  
@@ -1039,7 +1040,7 @@
 		private var tempConcept:String = null;
 		private var fastEC:Boolean = false;
 		override public function getElementClasses(_concept:String = null, _facet:Facet = null):void {
-			trace("getElementClasses");
+			trace("getElementClasses----------------------");
 			tempEClassesFacet = _facet;
 			tempConcept = _concept;
 			var pattern:RegExp;
@@ -1051,22 +1052,23 @@
 			if (fastEC) {
 				//fast
 				query = this.prefixes + 'SELECT DISTINCT ?category ?label ' + 
-				'WHERE { ?category rdf:type skos:Concept . ' + 
+				'WHERE { ' + 
 						 '?category rdfs:label ?label .  ' +
 						 '?label bif:contains "' + _concept + '" .  ' +
 						 'FILTER (lang(?label) = "en") ' +
-				'} ';
+				'} '; //?category rdf:type skos:Concept . ' + 
 			}else {
-				query = this.prefixes + 'SELECT DISTINCT ?category ?label ' +
+				query = this.prefixes + 
+				'SELECT DISTINCT ?category ?label ' +
 				'COUNT(?o) AS ?numOfInstances  ' + 
-				'WHERE { ?category rdf:type skos:Concept . ' +  
+				'WHERE { ' +  
 						 '?o skos:subject ?category . ' +
 						 '?category rdfs:label ?label .  ' +
 						 '?label bif:contains "' + _concept + '" .  ' +
 						 'FILTER (lang(?label) = "en") ' +
-				'} ORDER BY DESC(?numOfInstances) LIMIT 30 ';	
+				'} ORDER BY DESC(?numOfInstances) LIMIT 30 ';	 // ?category rdf:type skos:Concept . ' +
 			}
-			
+			trace("query: " + query);
 			executeSparqlQuery(query, null, getElementClasses_Result, getElementClasses_Fault);
 			
 		}
