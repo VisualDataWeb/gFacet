@@ -988,15 +988,20 @@
 				  " ?s ?type ?o ." +
 				  " ?o skos:subject ?class ." +
 				  //" ?o rdfs:label ?oLabel ." +
+				  //" {SELECT DISTINCT ?labelOfType ?labelOfClass WHERE { " +
 				  " ?type rdfs:label ?labelOfType ." +
 				  " ?class rdfs:label ?labelOfClass ." +
 				  //'FILTER (lang(?labelOfClass) = "en" && lang(?labelOfType) = "en")' +
 				  " FILTER (lang(?labelOfClass) = 'en') " +
+				  //" }} " +
 				  //'FILTER (lang(?oLabel) = "en")' +
 				  //' FILTER (lang(?labelOfType) = "en") '+
 				  "} ORDER BY DESC(?numOfInstances) LIMIT 40";
 			
 				  
+				  
+				  
+
 			//fast
 			var strQuery2:String = "SELECT ?type ?class ?labelOfType ?labelOfClass " +
 				  " WHERE { " +
