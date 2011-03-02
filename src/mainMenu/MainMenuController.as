@@ -39,6 +39,7 @@ import mx.utils.ArrayUtil;
 import mx.utils.ObjectUtil;
 import popup.ConfigSelectionEvent;
 import popup.ExpertSettings;
+import org.flashdevelop.utils.FlashConnect;
 
 private var _model:MainMenuModel;
 
@@ -72,9 +73,9 @@ public function getElementClasses(userInput:String):void {
 	var query:String = getQuery(userInput);
 	
 	mainMenuForm.enabled = false;
+	//FlashConnect.trace("mainMenuFrom disabled");
 	
 	myConnection.executeSparqlQuery(query, new ArrayCollection([userInput]), getElementClasses_Result, getElementClasses_Fault);
-	
 }
 
 private var resultNS:Namespace = new Namespace("http://www.w3.org/2005/sparql-results#");
@@ -84,7 +85,6 @@ private function getElementClasses_Fault(e:FaultEvent):void {
 }
 
 private function getElementClasses_Result(e:ResultEvent):void {
-	
 	mainMenuForm.enabled = true;
 	
 	var result:XML = new XML(e.result);
@@ -165,18 +165,21 @@ private function getQuery(userInput:String):String {
 		"PREFIX dbpedia2: <http://dbpedia.org/property/> " +
 		"PREFIX dbpedia: <http://dbpedia.org/> " +
 		"PREFIX skos: <http://www.w3.org/2004/02/skos/core#> " + 
+		"PREFIX dcterms: <http://purl.org/dc/terms/> " +
 		"";
 	
 	query += prefixes;
+	
 	
 	if (model.connection.config.isVirtuoso) {
 		query += "SELECT DISTINCT ?category ?label " +
 		"COUNT(?o) AS ?numOfInstances  " + 
 		"WHERE { " + //?category rdf:type skos:Concept . " +  
-				"?o skos:subject ?category . " +
+				//"?o skos:subject ?category . " +
 				"?category rdfs:label ?label .  " +
 				"?label bif:contains \"'" + userInput + "'\" .  " +
-				"FILTER (lang(?label) = 'en') " +
+				"?o dcterms:subject ?category .  " +
+				"FILTER (lang(?label) = 'en' || lang(?label) = '') " + 
 		"} ORDER BY DESC(?numOfInstances) LIMIT 30 ";
 	}else {
 		query += "SELECT DISTINCT ?category ?label " +
@@ -189,6 +192,7 @@ private function getQuery(userInput:String):String {
 		"} ORDER BY DESC(?label) LIMIT 30 ";
 	}
 	
+	//FlashConnect.trace("Query: " + query);
 	return query;
 }
 

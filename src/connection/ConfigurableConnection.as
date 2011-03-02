@@ -352,14 +352,14 @@
 			query += "?validChild ?label_child ?comment_child "; /* ?allChild*/
 			query += "WHERE { ";
 			if (parent != null) {	//if _newFacet is not root
-				query += "?parent skos:subject <" + parent.elementClassId + "> . ";
+				query += "?parent dcterms:subject <" + parent.elementClassId + "> . ";
 				query += "?parent <"+_newFacet.property.id+"> ?validChild. ";	//this number of validChild is restricted to only those that are related to the parent!
 				query += "?parent rdfs:label ?label_parent. FILTER (lang(?label_parent) = 'en' ) ";
 				query += "OPTIONAL {  ";
 				query += "?parent rdfs:comment ?comment_parent FILTER (lang(?comment_parent) = 'en' )";
 				query += "}";
 			}
-			query += "?validChild skos:subject <" + _newFacet.elementClassId + "> . ";
+			query += "?validChild dcterms:subject <" + _newFacet.elementClassId + "> . ";
 			/*query += "?allChild skos:subject <" + _newFacet.elementClassId + "> . ";*/
 			query += "?validChild rdfs:label ?label_child. FILTER (lang(?label_child) = 'en' ) ";
 			query += "OPTIONAL {  ";
@@ -386,7 +386,7 @@
 			var arrResult:Array = aSPARQLParser.getResults;
 			
 			if (arrResult.length < 1) {
-				FlashConnect.trace("no result in addFacet!");
+				//FlashConnect.trace("no result in addFacet!");
 				//onResultGetFacetedChains(new Array(new Chain(this.rootFacet.chainId,null,new Array(),0)));
 			}else {
 				var count:int = arrResult.length;
@@ -534,9 +534,9 @@
 			query += "?validChild ?label_child ?comment_child "; /* ?allChild*/
 			query += "WHERE { ";
 			if (parent != null) {	//if _newFacet is not root
-				query += "?parent skos:subject <" + parent.elementClassId + "> . ";		
+				query += "?parent dcterms:subject <" + parent.elementClassId + "> . ";		
 			}
-			query += "?validChild skos:subject <" + _newFacet.elementClassId + "> . ";
+			query += "?validChild dcterms:subject <" + _newFacet.elementClassId + "> . ";
 			query += "?validChild rdfs:label ?label_child. FILTER (lang(?label_child) = 'en' ) ";
 			/*if (parent != null) {
 				query += "OPTIONAL { ?parent <" + _newFacet.property.id + "> ?validChild }";	//only those that are not bound to the parent!! //the direction is always correct for a new Facet!!
@@ -984,9 +984,9 @@
 			//?type ?class 
 			var strQuery:String = "SELECT ?type ?class ?labelOfType ?labelOfClass COUNT(DISTINCT ?o) AS ?numOfInstances" +
 				  " WHERE { " +
-				  " ?s skos:subject <" + _elementClass.id + "> ." +
+				  " ?s dcterms:subject <" + _elementClass.id + "> ." +
 				  " ?s ?type ?o ." +
-				  " ?o skos:subject ?class ." +
+				  " ?o dcterms:subject ?class ." +
 				  //" ?o rdfs:label ?oLabel ." +
 				  //" {SELECT DISTINCT ?labelOfType ?labelOfClass WHERE { " +
 				  " ?type rdfs:label ?labelOfType ." +
@@ -1005,9 +1005,9 @@
 			//fast
 			var strQuery2:String = "SELECT ?type ?class ?labelOfType ?labelOfClass " +
 				  " WHERE { " +
-				  " ?s skos:subject <" + _elementClass.id + "> ." +
+				  " ?s dcterms:subject <" + _elementClass.id + "> ." +
 				  " ?s ?type ?o ." +
-				  " ?o skos:subject ?class ." +
+				  " ?o dcterms:subject ?class ." +
 				  //" ?o rdfs:label ?oLabel ." +
 				  " ?type rdfs:label ?labelOfType ." +
 				  " ?class rdfs:label ?labelOfClass " +
@@ -1067,7 +1067,7 @@
 				'SELECT DISTINCT ?category ?label ' +
 				'COUNT(?o) AS ?numOfInstances  ' + 
 				'WHERE { ' +  
-						 '?o skos:subject ?category . ' +
+						 '?o dcterms:subject ?category . ' +
 						 '?category rdfs:label ?label .  ' +
 						 '?label bif:contains "' + _concept + '" .  ' +
 						 'FILTER (lang(?label) = "en") ' +
