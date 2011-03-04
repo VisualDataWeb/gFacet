@@ -12,6 +12,7 @@ You should have received a copy of the GNU General Public License along with thi
 	
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
 				xmlns:fc="com.adobe.flex.extras.controls.springgraph.*"
+				preloader="preloader.CustomPreloader"
 				xmlns:mainMenu="mainMenu.*"
 				
 				layout="absolute"  
