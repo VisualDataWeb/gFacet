@@ -16,14 +16,15 @@ You should have received a copy of the GNU General Public License along with thi
 	<mx:Script source="MainMenuController.as"/>
 	
 	<mx:VBox paddingLeft="0" paddingTop="0" paddingRight="0" paddingBottom="0">
-	
+		
 		<mx:Form id="mainMenuForm" paddingLeft="10" paddingTop="10" paddingRight="10" paddingBottom="0"
 				horizontalGap="1" indicatorGap="2" verticalGap="3" styleName="chainItemStyle"
 				mouseOver="mouseOverHandler(event)" mouseOut="mouseOutHandler(event)">
+			
 			<mx:Label width="250" text="Search for classes and add them to the graph."/>
 			<mx:HBox width="250">
 				<mx:FormItem label="Search:" defaultButton="{myOk}" direction="horizontal"  >
-					<mx:TextInput id="textInput" text="german football" width="156" />
+					<mx:TextInput id="textInput" text="german physicists" width="156" />
 				</mx:FormItem>
 				<mx:Button id="myOk" label="ok" click="{getElementClasses(textInput.text);}" styleName="myButtonStyle3" />
 			</mx:HBox>
@@ -47,9 +48,9 @@ You should have received a copy of the GNU General Public License along with thi
 		
 		<mx:HBox paddingLeft="10" paddingTop="0" paddingRight="10" paddingBottom="20" horizontalAlign="right" width="100%">
 			<mx:Button label="settings" click="{settingsClickHandler(event)}" styleName="myButtonStyle3" />
+			<mx:Button label="info" click="{infosClickHandler(event)}" styleName="myButtonStyle3"/>
 			<mx:Spacer width="100%" />
 			<mx:Button id="myAdd" label="add selected" enabled="{(classesDG.selectedItem != null)}" click="{setInitialElementClass(classesDG.selectedItem as ElementClass)}" styleName="myButtonStyle3" />
 		</mx:HBox>
-		
 	</mx:VBox>
 </mx:Canvas>
