@@ -40,6 +40,7 @@ import mx.utils.ObjectUtil;
 import popup.ConfigSelectionEvent;
 import popup.ExpertSettings;
 import org.flashdevelop.utils.FlashConnect;
+import popup.StableAbout;
 
 private var _model:MainMenuModel;
 
@@ -274,4 +275,8 @@ public function createNavBar(numberOfPages:uint = 1, set:uint = 0):void {
 			conceptNavData.addItem({label:">>", data:numberOfPages - navSize});	//last page! numberOfPages - this.elementsPerPage
 		}
 	}
+}
+
+private function infosClickHandler(event:MouseEvent):void {
+	var pop:StableAbout = PopUpManager.createPopUp(Application.application as DisplayObject, StableAbout) as StableAbout;
 }
