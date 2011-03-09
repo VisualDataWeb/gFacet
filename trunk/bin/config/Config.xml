@@ -44,42 +44,6 @@
 			</ignoredProperties>
 		</endpoint>
 		
-    <endpoint>
-      <name>Linked Movie Data Base</name>
-      <abbreviation>lmdb</abbreviation>
-      <description>Semantic Web dataset for movie-related information.</description>
-      <endpointURI>http://data.linkedmdb.org/sparql</endpointURI>
-      <dontAppendSPARQL>false</dontAppendSPARQL>
-      <isVirtuoso>false</isVirtuoso>
-      <useProxy>true</useProxy>
-      <method>POST</method>
-      <autocompleteURIs>
-        <autocompleteURI>http://www.w3.org/2000/01/rdf-schema#label</autocompleteURI>
-        <autocompleteURI>http://xmlns.com/foaf/0.1/name</autocompleteURI>
-        <autocompleteURI>http://xmlns.com/foaf/0.1/Person</autocompleteURI>
-      </autocompleteURIs>
-    </endpoint>
-		
-		<endpoint>
-      <name>Semantic Web Dog Food</name>
-      <abbreviation>swdf</abbreviation>
-      <description>Here you can browse and search information on papers that were presented, people who attended, and other things that have to do with the main conferences and workshops in the area of Semantic Web research.</description>
-      <endpointURI>http://data.semanticweb.org</endpointURI>
-      <dontAppendSPARQL>false</dontAppendSPARQL>
-      <isVirtuoso>false</isVirtuoso>
-      <useProxy>true</useProxy>
-      <method>POST</method>
-      <autocompleteURIs>
-        <autocompleteURI>http://www.w3.org/2000/01/rdf-schema#label</autocompleteURI>
-      </autocompleteURIs>
-      <autocompleteLanguage/>
-      <abstractURIs>
-        <abstractURI>http://swrc.ontoware.org/ontology#abstract</abstractURI>
-        <abstractURI>http://www.w3.org/2002/12/cal/ical#description</abstractURI>
-      </abstractURIs>
-      <maxRelationLength>2</maxRelationLength>
-    </endpoint>	
-		
 	</endpoints>
 	
 </data>
