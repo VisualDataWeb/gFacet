@@ -1,0 +1,3 @@
+To compile gFacet you need:
+
+Flex SDK 3.4.0.9271: http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+3
