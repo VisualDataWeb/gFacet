@@ -1,0 +1,5 @@
+With gFacet we develop a new Adobe Flex tool to browsing RDF data that is accessible via arbitrary SPARQL endpoints (e.g. DBpedia) by combining graph-based visualization with faceted filtering techniques. The graph-based visualization of facets supports the integration of different domains and an efficient exploration of highly structured and interrelated datasets. It allows to access information from distant user-defined perspectives and thereby enables the exploration beyond the borders of Web pages.
+
+A first version of gFacet can be experienced at <a href='http://gfacet.visualdataweb.org'><a href='http://gfacet.visualdataweb.org'>http://gfacet.visualdataweb.org</a></a>.
+
+To compile the gFacet code you need Flex SDK 3.4 as available at: <a href='http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+3'><a href='http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+3'>http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+3</a></a>.
